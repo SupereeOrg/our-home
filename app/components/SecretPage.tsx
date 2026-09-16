@@ -39,7 +39,7 @@ export default function SecretPage({
     <AnimatePresence>
       {open && (
         <motion.div
-          className="fixed inset-0 z-[9996] bg-ink text-cream overflow-y-auto"
+          className="fixed inset-0 z-[9996] bg-ink text-cream overflow-y-auto scroll-slim"
           initial={{ clipPath: "circle(0% at 50% 4%)" }}
           animate={{ clipPath: "circle(150% at 50% 4%)" }}
           exit={{ clipPath: "circle(0% at 50% 4%)" }}

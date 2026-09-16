@@ -18,36 +18,65 @@ html {
   scroll-behavior: smooth;
 }
 
-/* ---------- 自定义滚动条 ----------
-   关键坑：Chrome 121+ 会支持标准属性，且一旦 scrollbar-color 非 auto，
-   就完全忽略 ::-webkit-scrollbar 系样式（继承给全部元素）。
-   因此标准属性只给"不支持 webkit 伪元素"的浏览器（Firefox），
-   Chrome/Safari/Edge 走可完全定制的 webkit 伪元素。
+/* ---------- 滚动条：原生 overlay 方案 ----------
+   Windows Chrome 没有可用的真悬浮原生条：
+   overflow: overlay 已废弃（114+ 实测等同 classic，占位依旧），
+   scrollbar-style: overlay 还只是 CSSWG 提案。
+   所以根滚动条直接隐藏（零占位），指示与拖拽由 fixed 的
+   ScrollRail 组件接管；原生滚动本身保留，键盘/触摸/锚点不受影响。
 ---------------------------------- */
-@supports not selector(::-webkit-scrollbar) {
-  html {
-    scrollbar-width: thin;
-    scrollbar-color: var(--color-ink) var(--color-cream);
-  }
+html {
+  scrollbar-width: none; /* Firefox：隐藏根滚动条 */
+}
+html::-webkit-scrollbar {
+  display: none; /* Chrome / Safari / Edge：隐藏根滚动条 */
 }
 
-/* Chrome / Safari / Edge：完整可定制（圆角、hover） */
-::-webkit-scrollbar {
-  width: 10px;
-  height: 10px;
+/* 页内小滚动区（如彩蛋信纸）保留细条，不用全局动手 */
+.scroll-slim {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 251, 246, 0.35) transparent;
 }
-::-webkit-scrollbar-track {
-  background: var(--color-cream);
+.scroll-slim::-webkit-scrollbar {
+  width: 8px;
 }
-::-webkit-scrollbar-thumb {
-  background: var(--color-ink);
+.scroll-slim::-webkit-scrollbar-thumb {
+  background: rgba(255, 251, 246, 0.35);
   border-radius: 999px;
-  border: 2px solid var(--color-cream);
 }
-::-webkit-scrollbar-thumb:hover {
+
+/* ---------- 悬浮滚动条（ScrollRail）：fixed 定位，零布局占用 ---------- */
+.scroll-rail {
+  display: none; /* 仅真鼠标设备启用，触屏走系统行为 */
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: 16px; /* 热区，拇指只占其中 8px */
+  z-index: 9000;
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+@media (hover: hover) and (pointer: fine) {
+  .scroll-rail {
+    display: block;
+  }
+}
+.scroll-thumb {
+  position: absolute;
+  top: 12px;
+  right: 4px;
+  width: 8px;
+  border-radius: 999px;
+  background: var(--color-ink);
+  touch-action: none;
+  /* 注意：transform 由 JS 每帧写入，这里绝不能过渡 transform */
+  transition: background 0.25s;
+}
+.scroll-thumb:hover {
   background: #ef9cbb; /* hover 变粉 · 苏淋 */
 }
-::-webkit-scrollbar-thumb:active {
+.scroll-thumb:active {
   background: #8fcb8a; /* 按住变绿 · 纸片君 */
 }
 

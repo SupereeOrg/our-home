@@ -35,6 +35,7 @@ import {
 } from "lucide-react";
 import Cursor from "./components/Cursor";
 import HeartBurst from "./components/HeartBurst";
+import ScrollRail from "./components/ScrollRail";
 import CountUp from "./components/CountUp";
 import Magnetic from "./components/Magnetic";
 import Playlist from "./components/Playlist";
@@ -175,6 +176,7 @@ export default function Home() {
     <main className="min-h-screen grain">
       <Cursor />
       <HeartBurst />
+      <ScrollRail />
       <SecretPage open={secret} onClose={() => setSecret(false)} />
 
       {/* 导航 */}
