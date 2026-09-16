@@ -48,7 +48,6 @@ function Row({
         className={`group flex items-center gap-4 border-2 border-black rounded-2xl px-4 py-3 transition-colors duration-300 min-w-0 ${
           playing ? "bg-ink text-cream" : "bg-white hover:bg-cream"
         }`}
-        data-cursor={playing ? "PAUSE" : "PLAY"}
         role="button"
         tabIndex={0}
         aria-label={playing ? `暂停 ${t.track}` : `播放 ${t.track}`}
@@ -189,7 +188,7 @@ export default function Playlist() {
       <p className="mt-5 text-[12px] text-[#8A8280] text-center">
         共 {PLAYLIST.length} 首 · 音源为 iTunes 官方 30 秒试听 ·
         <a
-          className="u-grow font-bold text-ink ml-1"
+          className="u-line font-bold text-ink ml-1"
           href={idx !== null ? `https://music.163.com/#/search/m/?s=${encodeURIComponent(PLAYLIST[idx].q)}` : "https://music.163.com"}
           target="_blank"
           rel="noreferrer"

@@ -33,7 +33,6 @@ import {
   Waves,
   X,
 } from "lucide-react";
-import Cursor from "./components/Cursor";
 import HeartBurst from "./components/HeartBurst";
 import ScrollRail from "./components/ScrollRail";
 import CountUp from "./components/CountUp";
@@ -191,7 +190,6 @@ export default function Home() {
 
   return (
     <main className="min-h-screen grain">
-      <Cursor />
       <HeartBurst />
       <ScrollRail />
       <SecretPage open={secret} onClose={() => setSecret(false)} />
@@ -220,7 +218,7 @@ export default function Home() {
           className="absolute inset-y-0 left-0 bg-gradient-to-r from-[#c9e7c4]/40 to-[#f6c9d9]/40 pointer-events-none"
         />
         <div className="flex items-center gap-1.5 shrink-0 min-w-0 pl-1">
-          <button onClick={onLogoClick} aria-label="Superee" data-cursor="?" className="shrink-0">
+          <button onClick={onLogoClick} aria-label="Superee" className="shrink-0">
             <Image
               src="/avatars/mix-256.webp"
               alt="Superee 合体徽章"
@@ -291,7 +289,7 @@ export default function Home() {
           <a href="https://github.com/SupereeOrg" target="_blank" rel="noreferrer" aria-label="GitHub" className="hidden xl:grid place-items-center w-9 h-9 rounded-full hover:bg-black hover:text-cream transition"><GithubMark size={16} /></a>
         </Magnetic>
         <Magnetic className="shrink-0 relative z-10">
-          <a href="#story" data-cursor="GO" className="bg-[#211d1b] text-cream rounded-full px-2.5 sm:px-3.5 py-2 text-[13px] font-bold whitespace-nowrap flex items-center gap-1.5 shrink-0"><span className="hidden sm:inline">认识我们</span><ArrowRight size={14} /></a>
+          <a href="#story" className="bg-[#211d1b] text-cream rounded-full px-2.5 sm:px-3.5 py-2 text-[13px] font-bold whitespace-nowrap flex items-center gap-1.5 shrink-0"><span className="hidden sm:inline">认识我们</span><ArrowRight size={14} /></a>
         </Magnetic>
       </motion.nav>
 
@@ -353,7 +351,7 @@ export default function Home() {
           className="max-w-6xl mx-auto w-full grid md:grid-cols-[1fr_auto_1fr] border-2 border-black rounded-[32px] overflow-hidden bg-white hard-shadow mt-9"
         >
           {/* 纸片君：广州，绿 —— 第一位 */}
-          <div className="p-8 min-h-[440px] flex flex-col bg-gradient-to-b from-[#EAF8E6] to-[#C9E7C4]">
+          <div id="paperee" className="p-8 min-h-[440px] flex flex-col bg-gradient-to-b from-[#EAF8E6] to-[#C9E7C4] scroll-mt-24">
             <span className="text-[12px] font-bold tracking-[0.18em] opacity-70">01 — 纸片君 PAPEREE</span>
             <h2 className="font-bold leading-none mt-4" style={{ fontFamily: "var(--font-space-grotesk), sans-serif", fontSize: "clamp(40px,4.5vw,64px)" }}>
               PAPEREE
@@ -389,7 +387,7 @@ export default function Home() {
           </div>
 
           {/* 苏淋：唐山人，在拉萨上学 —— 第二位 */}
-          <div className="p-8 min-h-[440px] flex flex-col items-end text-right bg-gradient-to-b from-[#FDE9F1] to-[#F6C9D9]">
+          <div id="sulin" className="p-8 min-h-[440px] flex flex-col items-end text-right bg-gradient-to-b from-[#FDE9F1] to-[#F6C9D9] scroll-mt-24">
             <span className="text-[12px] font-bold tracking-[0.18em] opacity-70">02 — 苏淋 SULIN</span>
             <h2 className="font-bold leading-none mt-4" style={{ fontFamily: "var(--font-space-grotesk), sans-serif", fontSize: "clamp(40px,4.5vw,64px)" }}>
               SULIN
@@ -453,7 +451,6 @@ export default function Home() {
               key={s.label}
               {...fadeUp}
               className={`lift border-2 border-black rounded-3xl p-6 hard-shadow-sm ${i % 2 === 0 ? "bg-[#F6C9D9]" : "bg-[#C9E7C4]"}`}
-              data-cursor={i === 0 ? "REAL" : undefined}
             >
               <s.icon size={20} strokeWidth={2.2} />
               <CountUp
@@ -608,15 +605,28 @@ export default function Home() {
         </div>
         <p className="opacity-70 mt-3 text-[14px]">纸片君 · 苏淋 — 广州 ↔ 拉萨 · Next.js on Vercel</p>
         {late && <p className="mt-2 text-[13px] text-[#F6C9D9] font-bold">都过了 23 点了，两位冠军请立刻睡觉 ♪</p>}
+
+        {/* 站内索引：长页标配，导航在底部不可见时接力 */}
+        <nav aria-label="页脚导航" className="flex gap-x-5 gap-y-2 justify-center mt-6 flex-wrap text-[13px] font-bold">
+          {NAV.map((n) => (
+            <a key={n.id} href={`#${n.id}`} className="u-pill">
+              {n.label}
+            </a>
+          ))}
+        </nav>
+
         <div className="flex gap-3 justify-center mt-6 flex-wrap">
           <Magnetic className="inline-block">
-            <a href="#duo" className="rounded-full px-6 py-3 font-extrabold text-[14px] bg-[#C9E7C4] text-black flex items-center gap-2"><Leaf size={16} />纸片君</a>
+            <a href="#paperee" className="rounded-full px-6 py-3 font-extrabold text-[14px] bg-[#C9E7C4] text-black flex items-center gap-2"><Leaf size={16} />纸片君</a>
           </Magnetic>
           <Magnetic className="inline-block">
-            <a href="#duo" className="rounded-full px-6 py-3 font-extrabold text-[14px] bg-[#F6C9D9] text-black flex items-center gap-2"><Flower2 size={16} />苏淋</a>
+            <a href="#sulin" className="rounded-full px-6 py-3 font-extrabold text-[14px] bg-[#F6C9D9] text-black flex items-center gap-2"><Flower2 size={16} />苏淋</a>
           </Magnetic>
           <Magnetic className="inline-block">
             <a href="#" className="rounded-full px-6 py-3 font-extrabold text-[14px] border-2 border-white flex items-center gap-2">回到顶部 <ArrowUp size={16} /></a>
+          </Magnetic>
+          <Magnetic className="inline-block">
+            <a href="https://github.com/SupereeOrg" target="_blank" rel="noreferrer" aria-label="GitHub" className="rounded-full px-4 py-3 font-extrabold text-[14px] border-2 border-white/40 opacity-60 hover:opacity-100 hover:border-white transition-all flex items-center gap-2"><GithubMark size={16} /></a>
           </Magnetic>
           <Magnetic className="inline-block">
             <button onClick={() => setSecret(true)} aria-label="Secret" className="rounded-full px-4 py-3 font-extrabold text-[14px] border-2 border-dashed border-white/40 opacity-40 hover:opacity-100 hover:border-white transition-all flex items-center gap-2" title="这里藏了什么">
@@ -624,6 +634,12 @@ export default function Home() {
             </button>
           </Magnetic>
         </div>
+        <p className="mt-6 text-[13px] opacity-60">
+          写信给我们 →{" "}
+          <a href="mailto:hello@superee.xyz" className="u-line font-bold text-[#FFFBF6]">
+            hello@superee.xyz
+          </a>
+        </p>
         <small className="block mt-6 opacity-50 text-[12px] tracking-widest">© 2026 SUPEREE · EE × SU · 试试 5 连点它 ↑</small>
       </footer>
     </main>

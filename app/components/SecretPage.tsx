@@ -25,6 +25,7 @@ export default function SecretPage({
   onClose: () => void;
 }) {
   const [step, setStep] = useState(0);
+  const [visits, setVisits] = useState<number | null>(null);
 
   useEffect(() => {
     if (!open) {
@@ -50,11 +51,24 @@ export default function SecretPage({
     return () => removeEventListener("keydown", onKey);
   }, [open, onClose]);
 
+  /* 推门计数：按设备记“这是你第几次来”，只存在本地 */
+  useEffect(() => {
+    if (!open) return;
+    try {
+      const n = Number(localStorage.getItem("superee-secret-visits") ?? 0) || 0;
+      const next = n + 1;
+      localStorage.setItem("superee-secret-visits", String(next));
+      setVisits(next);
+    } catch {
+      setVisits(null);
+    }
+  }, [open]);
+
   return (
     <AnimatePresence>
       {open && (
         <motion.div
-          className="fixed inset-0 z-[9996] bg-ink text-cream overflow-y-auto scroll-slim"
+          className="fixed inset-0 z-[9996] bg-ink text-cream overflow-y-auto scroll-hide"
           role="dialog"
           aria-modal="true"
           aria-label="Superee 彩蛋信"
@@ -107,7 +121,11 @@ export default function SecretPage({
 
             <div className="border-t border-cream/20 pt-6 opacity-60 text-[12px] tracking-widest flex items-center gap-2">
               <Asterisk size={12} className="text-sulin" />
-              SUPEREE SECRET STATION · 你是第 1 个发现这里的人
+              {visits === null
+                ? "SUPEREE SECRET STATION"
+                : visits <= 1
+                  ? "SUPEREE SECRET STATION · 欢迎第一次推开这扇门"
+                  : `SUPEREE SECRET STATION · 这是你第 ${visits} 次推开这扇门`}
             </div>
           </div>
         </motion.div>

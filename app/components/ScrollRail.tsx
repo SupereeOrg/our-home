@@ -149,7 +149,7 @@ export default function ScrollRail() {
       aria-valuemax={100}
       aria-valuenow={0}
     >
-      <div ref={thumbRef} className="scroll-thumb" data-cursor="DRAG" role="presentation" />
+      <div ref={thumbRef} className="scroll-thumb" role="presentation" />
     </div>
   );
 }

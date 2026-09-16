@@ -32,17 +32,13 @@ html::-webkit-scrollbar {
   display: none; /* Chrome / Safari / Edge：隐藏根滚动条 */
 }
 
-/* 页内小滚动区（如彩蛋信纸）保留细条，不用全局动手 */
-.scroll-slim {
-  scrollbar-width: thin;
-  scrollbar-color: rgba(255, 251, 246, 0.35) transparent;
+/* 页内短滚动区（如彩蛋信纸）：原生条直接隐藏，零占位。
+   内容短、极少溢出；溢出时滚轮/触摸/键盘照常滚，只是无视觉指示。 */
+.scroll-hide {
+  scrollbar-width: none;
 }
-.scroll-slim::-webkit-scrollbar {
-  width: 8px;
-}
-.scroll-slim::-webkit-scrollbar-thumb {
-  background: rgba(255, 251, 246, 0.35);
-  border-radius: 999px;
+.scroll-hide::-webkit-scrollbar {
+  display: none;
 }
 
 /* ---------- 悬浮滚动条（ScrollRail）：fixed 定位，零布局占用 ---------- */
@@ -56,6 +52,10 @@ html::-webkit-scrollbar {
   z-index: 9000;
   opacity: 0;
   transition: opacity 0.3s;
+  /* difference 必须写在 fixed 本体上：写在子元素会被 rail 自身的
+     stacking context 隔离，只能和透明底混合、白色恒白；
+     本体 blend 则直接和页面混合，透明区不影响页面，只有白拇指参与混合 */
+  mix-blend-mode: difference;
 }
 @media (hover: hover) and (pointer: fine) {
   .scroll-rail {
@@ -68,7 +68,7 @@ html::-webkit-scrollbar {
   right: 4px;
   width: 8px;
   border-radius: 999px;
-  background: var(--color-ink);
+  background: #fff; /* 实际颜色由父级 difference 和身后内容共同决定 */
   touch-action: none;
   /* 注意：transform 由 JS 每帧写入，这里绝不能过渡 transform */
   transition: background 0.25s;
@@ -97,38 +97,8 @@ body.secret-open .scroll-rail {
   pointer-events: none;
 }
 
-/* ---------- 自定义光标（仅真鼠标设备） ---------- */
-@media (hover: hover) and (pointer: fine) {
-  .cursor-host,
-  .cursor-host * {
-    cursor: none !important;
-  }
-}
-.cursor-dot {
-  position: fixed;
-  top: 0;
-  left: 0;
-  z-index: 9999;
-  pointer-events: none;
-  will-change: transform;
-  border-radius: 9999px;
-  background: #211d1b;
-  /* 初始藏屏外，等第一次 pointermove 由 rAF 接管坐标 */
-  transform: translate3d(-100px, -100px, 0);
-}
-.cursor-ring {
-  position: fixed;
-  top: 0;
-  left: 0;
-  z-index: 9998;
-  pointer-events: none;
-  will-change: transform;
-  /* 初始藏屏外，等第一次 pointermove 由 rAF 接管坐标 */
-  transform: translate3d(-300px, -300px, 0) scale(0.42);
-  transition:
-    opacity 0.25s,
-    background 0.25s;
-}
+/* ---------- 原生光标：全站保留系统默认（I-beam/小手/抓手各归其位），
+   点击特效由 HeartBurst 负责 ---------- */
 
 /* ---------- 装载噪点 ---------- */
 .grain::before {
@@ -253,16 +223,29 @@ body.secret-open .scroll-rail {
   }
 }
 
-/* ---------- 链接下划线生长 ---------- */
-.u-grow {
-  background-image: linear-gradient(currentColor, currentColor);
-  background-size: 0% 2px;
-  background-repeat: no-repeat;
-  background-position: 0 100%;
-  transition: background-size 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+/* ---------- 悬浮指示：两套，按场景分 ----------
+   导航类小链用药丸填充（贴合全站胶囊语言）；
+   句子内联链用原生下划线（u-grow 色条长在行盒底部，中文看着脱节，已弃用）。 */
+.u-pill {
+  border-radius: 999px;
+  padding: 5px 14px;
+  margin: -5px -14px; /* 抵消 padding，hover 不抖排版 */
+  color: rgba(255, 251, 246, 0.6);
+  transition:
+    background-color 0.3s,
+    color 0.3s;
 }
-.u-grow:hover {
-  background-size: 100% 2px;
+.u-pill:hover {
+  background-color: #fffbf6;
+  color: #211d1b;
+}
+.u-line {
+  text-decoration: underline;
+  text-decoration-thickness: 1.5px;
+  text-underline-offset: 4px;
+}
+.u-line:hover {
+  text-decoration-thickness: 2.5px;
 }
 
 @media (prefers-reduced-motion: reduce) {
