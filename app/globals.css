@@ -1,0 +1,238 @@
+@import "tailwindcss";
+
+@theme {
+  --color-sulin: #f6c9d9;
+  --color-sulin-deep: #ef9cbb;
+  --color-paperee: #c9e7c4;
+  --color-paperee-deep: #8fcb8a;
+  --color-cream: #fffbf6;
+  --color-ink: #211d1b;
+  --font-display: var(--font-space-grotesk), "Noto Sans SC", sans-serif;
+}
+
+:root {
+  --font-space-grotesk-setting: var(--font-space-grotesk);
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+/* ---------- 自定义滚动条 ----------
+   关键坑：Chrome 121+ 会支持标准属性，且一旦 scrollbar-color 非 auto，
+   就完全忽略 ::-webkit-scrollbar 系样式（继承给全部元素）。
+   因此标准属性只给"不支持 webkit 伪元素"的浏览器（Firefox），
+   Chrome/Safari/Edge 走可完全定制的 webkit 伪元素。
+---------------------------------- */
+@supports not selector(::-webkit-scrollbar) {
+  html {
+    scrollbar-width: thin;
+    scrollbar-color: var(--color-ink) var(--color-cream);
+  }
+}
+
+/* Chrome / Safari / Edge：完整可定制（圆角、hover） */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+::-webkit-scrollbar-track {
+  background: var(--color-cream);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--color-ink);
+  border-radius: 999px;
+  border: 2px solid var(--color-cream);
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #ef9cbb; /* hover 变粉 · 苏淋 */
+}
+::-webkit-scrollbar-thumb:active {
+  background: #8fcb8a; /* 按住变绿 · 纸片君 */
+}
+
+body {
+  background: var(--color-cream);
+  color: var(--color-ink);
+  font-family: var(--font-noto-sans-sc), var(--font-space-grotesk), sans-serif;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+
+/* ---------- 自定义光标（仅真鼠标设备） ---------- */
+@media (hover: hover) and (pointer: fine) {
+  .cursor-host,
+  .cursor-host * {
+    cursor: none !important;
+  }
+}
+.cursor-dot {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 9999;
+  pointer-events: none;
+  will-change: transform;
+  border-radius: 9999px;
+  background: #211d1b;
+  /* 初始藏屏外，等第一次 pointermove 由 rAF 接管坐标 */
+  transform: translate3d(-100px, -100px, 0);
+}
+.cursor-ring {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 9998;
+  pointer-events: none;
+  will-change: transform;
+  /* 初始藏屏外，等第一次 pointermove 由 rAF 接管坐标 */
+  transform: translate3d(-300px, -300px, 0) scale(0.42);
+  transition:
+    opacity 0.25s,
+    background 0.25s;
+}
+
+/* ---------- 装载噪点 ---------- */
+.grain::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 9990;
+  pointer-events: none;
+  opacity: 0.035;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* ---------- 跑马灯：无缝循环（拷贝之间无父级 gap，间距做在拷贝内部） ---------- */
+@keyframes marquee {
+  to {
+    transform: translateX(-50%);
+  }
+}
+.animate-marquee {
+  animation: marquee 22s linear infinite;
+  will-change: transform;
+}
+.marquee:hover .animate-marquee {
+  animation-play-state: paused;
+}
+
+/* ---------- 反向跑马灯 ---------- */
+@keyframes marquee-rev {
+  from {
+    transform: translateX(-50%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+.animate-marquee-rev {
+  animation: marquee-rev 26s linear infinite;
+  will-change: transform;
+}
+
+/* ---------- 均衡器律动（播放状态） ---------- */
+@keyframes eq {
+  0%,
+  100% {
+    transform: scaleY(0.25);
+  }
+  50% {
+    transform: scaleY(1);
+  }
+}
+.eq-bar {
+  transform-origin: bottom;
+  animation: eq 0.7s ease-in-out infinite;
+}
+
+/* ---------- 慢速浮动 ---------- */
+@keyframes floaty {
+  0%,
+  100% {
+    transform: translateY(0) rotate(-2deg);
+  }
+  50% {
+    transform: translateY(-10px) rotate(2deg);
+  }
+}
+.animate-floaty {
+  animation: floaty 5s ease-in-out infinite;
+}
+
+/* ---------- 心跳脉冲 ---------- */
+@keyframes heartbeat {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  25% {
+    transform: scale(1.18);
+  }
+  45% {
+    transform: scale(1.02);
+  }
+  65% {
+    transform: scale(1.12);
+  }
+}
+.animate-heartbeat {
+  animation: heartbeat 1.8s ease-in-out infinite;
+}
+
+/* ---------- 描边巨字 ---------- */
+.text-outline {
+  color: transparent;
+  -webkit-text-stroke: 2px var(--color-ink);
+}
+.text-outline-white {
+  color: transparent;
+  -webkit-text-stroke: 2px #fff;
+}
+
+/* ---------- 卡片硬阴影 ---------- */
+.hard-shadow {
+  box-shadow: 8px 8px 0 var(--color-ink);
+}
+.hard-shadow-sm {
+  box-shadow: 6px 6px 0 var(--color-ink);
+}
+
+/* ---------- 卡片 hover 微交互 ---------- */
+@media (pointer: fine) {
+  .lift {
+    transition:
+      transform 0.35s cubic-bezier(0.22, 1, 0.36, 1),
+      box-shadow 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  .lift:hover {
+    transform: translate(-4px, -4px) rotate(-0.6deg);
+    box-shadow: 12px 12px 0 var(--color-ink);
+  }
+  .lift:active {
+    transform: translate(2px, 2px);
+    box-shadow: 3px 3px 0 var(--color-ink);
+  }
+}
+
+/* ---------- 链接下划线生长 ---------- */
+.u-grow {
+  background-image: linear-gradient(currentColor, currentColor);
+  background-size: 0% 2px;
+  background-repeat: no-repeat;
+  background-position: 0 100%;
+  transition: background-size 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.u-grow:hover {
+  background-size: 100% 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-marquee,
+  .animate-marquee-rev,
+  .eq-bar,
+  .animate-floaty,
+  .animate-heartbeat {
+    animation: none;
+  }
+}

@@ -1,0 +1,15 @@
+# dependencies
+node_modules/
+.next/
+out/
+
+# vercel
+.vercel/
+
+# misc
+.DS_Store
+*.local
+tsconfig.tsbuildinfo
+
+# local-only original assets (optimized copies live in public/avatars)
+assets-originals/
