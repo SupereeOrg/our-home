@@ -20,9 +20,11 @@ import {
   Leaf,
   Lightbulb,
   Hash,
+  Mail,
   MapPin,
   MessagesSquare,
   MoonStar,
+  MousePointerClick,
   Music,
   Plane,
   RotateCcw,
@@ -352,14 +354,20 @@ export default function Home() {
         >
           {/* 纸片君：广州，绿 —— 第一位 */}
           <div id="paperee" className="p-8 min-h-[440px] flex flex-col bg-gradient-to-b from-[#EAF8E6] to-[#C9E7C4] scroll-mt-24">
-            <span className="text-[12px] font-bold tracking-[0.18em] opacity-70">01 — 纸片君 PAPEREE</span>
-            <h2 className="font-bold leading-none mt-4" style={{ fontFamily: "var(--font-space-grotesk), sans-serif", fontSize: "clamp(40px,4.5vw,64px)" }}>
+            <span className="text-[12px] font-bold tracking-[0.18em] bg-[#211d1b] text-[#FFFBF6] px-4 py-2 rounded-full w-max">01 · 纸片君 PAPEREE</span>
+            <h2 className="font-bold leading-none mt-5" style={{ fontFamily: "var(--font-space-grotesk), sans-serif", fontSize: "clamp(40px,4.5vw,64px)" }}>
               PAPEREE
-              <span className="block text-[16px] tracking-[0.3em] font-medium mt-3">纸片君 · 广州</span>
             </h2>
-            <p className="text-[13px] font-bold mt-2 opacity-60">在广州上学</p>
-            <p className="text-[14px] leading-7 max-w-[320px] mt-4 mb-8 text-[#3d3836]">
-              表情丰富，撒娇从不缺席。熬夜的时候除外——那时满脑子都是 su。
+            <dl className="w-full max-w-[320px] mt-5 text-[13.5px]">
+              <div className="flex justify-between gap-4 border-b border-dashed border-black/20 py-2">
+                <dt className="opacity-60">坐标</dt><dd className="font-bold">广州 · 海边</dd>
+              </div>
+              <div className="flex justify-between gap-4 border-b border-dashed border-black/20 py-2">
+                <dt className="opacity-60">现状</dt><dd className="font-bold">在广州上学</dd>
+              </div>
+            </dl>
+            <p className="text-[15px] font-medium leading-8 max-w-[320px] mt-5 mb-8 text-[#3d3836]">
+              “表情丰富，撒娇从不缺席。熬夜的时候除外——那时满脑子都是 su。”
             </p>
             <Image
               src="/avatars/paperee-512.webp"
@@ -388,14 +396,20 @@ export default function Home() {
 
           {/* 苏淋：唐山人，在拉萨上学 —— 第二位 */}
           <div id="sulin" className="p-8 min-h-[440px] flex flex-col items-end text-right bg-gradient-to-b from-[#FDE9F1] to-[#F6C9D9] scroll-mt-24">
-            <span className="text-[12px] font-bold tracking-[0.18em] opacity-70">02 — 苏淋 SULIN</span>
-            <h2 className="font-bold leading-none mt-4" style={{ fontFamily: "var(--font-space-grotesk), sans-serif", fontSize: "clamp(40px,4.5vw,64px)" }}>
+            <span className="text-[12px] font-bold tracking-[0.18em] bg-[#211d1b] text-[#FFFBF6] px-4 py-2 rounded-full w-max">02 · 苏淋 SULIN</span>
+            <h2 className="font-bold leading-none mt-5" style={{ fontFamily: "var(--font-space-grotesk), sans-serif", fontSize: "clamp(40px,4.5vw,64px)" }}>
               SULIN
-              <span className="block text-[16px] tracking-[0.3em] font-medium mt-3">苏淋 · 拉萨</span>
             </h2>
-            <p className="text-[13px] font-bold mt-2 opacity-60">河北唐山人 · 在拉萨上学</p>
-            <p className="text-[14px] leading-7 max-w-[320px] mt-4 mb-8 text-[#3d3836]">
-              话多主动，报备从不缺席。游泳的时候除外——那时满脑子都是 ee。
+            <dl className="w-full max-w-[320px] mt-5 text-[13.5px]">
+              <div className="flex justify-between gap-4 border-b border-dashed border-black/20 py-2">
+                <dt className="opacity-60">籍贯</dt><dd className="font-bold">河北唐山</dd>
+              </div>
+              <div className="flex justify-between gap-4 border-b border-dashed border-black/20 py-2">
+                <dt className="opacity-60">现居</dt><dd className="font-bold">拉萨 · 在读</dd>
+              </div>
+            </dl>
+            <p className="text-[15px] font-medium leading-8 max-w-[320px] mt-5 mb-8 text-[#3d3836]">
+              “话多主动，报备从不缺席。游泳的时候除外——那时满脑子都是 ee。”
             </p>
             <Image
               src="/avatars/sulin-512.webp"
@@ -603,8 +617,24 @@ export default function Home() {
         <div className="font-bold leading-none tracking-tight" style={{ fontFamily: "var(--font-space-grotesk), sans-serif", fontSize: "clamp(48px,8vw,110px)" }}>
           <span className="text-[#C9E7C4]">PAPEREE</span> × <span className="text-[#F6C9D9]">SULIN</span>
         </div>
-        <p className="opacity-70 mt-3 text-[14px]">纸片君 · 苏淋 — 广州 ↔ 拉萨 · Next.js on Vercel</p>
+        <p className="opacity-70 mt-3 text-[14px] flex flex-wrap items-center justify-center gap-x-2 gap-y-1">
+          <MapPin size={14} /> 广州 ↔ 拉萨
+        </p>
         {late && <p className="mt-2 text-[13px] text-[#F6C9D9] font-bold">都过了 23 点了，两位冠军请立刻睡觉 ♪</p>}
+
+        {/* 落款三格：谁在哪 + 用啥构建，替代原来一串散装字符 */}
+        <div className="grid sm:grid-cols-3 gap-3 max-w-3xl mx-auto mt-6 text-left">
+          {[
+            ["EE · 纸片君", "广州 · 海边"],
+            ["SU · 苏淋", "拉萨 · 高原"],
+            ["本站构建", "Next.js on Vercel"],
+          ].map(([k, v]) => (
+            <div key={k} className="border border-white/15 rounded-2xl px-5 py-4">
+              <div className="text-[11px] font-bold tracking-[0.2em] opacity-50">{k}</div>
+              <div className="font-bold text-[15px] mt-1">{v}</div>
+            </div>
+          ))}
+        </div>
 
         {/* 站内索引：长页标配，导航在底部不可见时接力 */}
         <nav aria-label="页脚导航" className="flex gap-x-5 gap-y-2 justify-center mt-6 flex-wrap text-[13px] font-bold">
@@ -634,13 +664,16 @@ export default function Home() {
             </button>
           </Magnetic>
         </div>
-        <p className="mt-6 text-[13px] opacity-60">
-          写信给我们 →{" "}
-          <a href="mailto:hello@superee.xyz" className="u-line font-bold text-[#FFFBF6]">
-            hello@superee.xyz
+        <p className="mt-6 text-[13px] opacity-60 flex flex-wrap items-center justify-center gap-2">
+          <Mail size={14} /> 写信给我们
+          <a href="mailto:hello@superee.xyz" className="u-line font-bold text-[#FFFBF6] inline-flex items-center gap-1">
+            hello@superee.xyz <ArrowUpRight size={13} />
           </a>
         </p>
-        <small className="block mt-6 opacity-50 text-[12px] tracking-widest">© 2026 SUPEREE · EE × SU · 试试 5 连点它 ↑</small>
+        <small className="mt-6 opacity-50 text-[12px] tracking-widest flex flex-wrap items-center justify-center gap-x-2 gap-y-1">
+          © 2026 SUPEREE · EE <Heart size={11} className="fill-current" /> SU ·
+          <MousePointerClick size={12} /> 试试 5 连点它 <ArrowUp size={12} />
+        </small>
       </footer>
     </main>
   );
