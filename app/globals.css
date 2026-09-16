@@ -88,6 +88,15 @@ body {
   overflow-x: hidden;
 }
 
+/* 彩蛋开着时：锁背景滚动 + 藏悬浮滚动条（关闭时自动恢复） */
+body.secret-open {
+  overflow: hidden;
+}
+body.secret-open .scroll-rail {
+  opacity: 0 !important;
+  pointer-events: none;
+}
+
 /* ---------- 自定义光标（仅真鼠标设备） ---------- */
 @media (hover: hover) and (pointer: fine) {
   .cursor-host,

@@ -103,6 +103,7 @@ function Reveal({ text, className, delay = 0 }: { text: string; className?: stri
 export default function Home() {
   const [active, setActive] = useState("duo");
   const [secret, setSecret] = useState(false);
+  const lenisRef = useRef<Lenis | null>(null);
   const logoClicks = useRef(0);
   const logoTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const heroRef = useRef<HTMLElement>(null);
@@ -118,13 +119,29 @@ export default function Home() {
 
   useEffect(() => {
     const lenis = new Lenis({ lerp: 0.12 });
+    lenisRef.current = lenis;
     const raf = (t: number) => {
       lenis.raf(t);
       requestAnimationFrame(raf);
     };
     requestAnimationFrame(raf);
-    return () => lenis.destroy();
+    return () => {
+      lenis.destroy();
+      lenisRef.current = null;
+    };
   }, []);
+
+  /* 彩蛋开着时锁住背景：Lenis 停（拦滚轮/触摸）+ body 锁（拦键盘）+ 藏悬浮滚动条。
+     信纸自己能滚：它的容器带了 data-lenis-prevent，Lenis 会放行原生滚动。 */
+  useEffect(() => {
+    document.body.classList.toggle("secret-open", secret);
+    if (secret) lenisRef.current?.stop();
+    else lenisRef.current?.start();
+    return () => {
+      document.body.classList.remove("secret-open");
+      lenisRef.current?.start();
+    };
+  }, [secret]);
 
   useEffect(() => {
     const obs = new IntersectionObserver(

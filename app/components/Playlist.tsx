@@ -150,13 +150,27 @@ export default function Playlist() {
     const a = audioRef.current;
     if (!a || idx === null) return;
     const tick = () => setProgress(a.currentTime);
+    // 播完只复位状态（音频本已停止），具名函数以便正确解绑
+    const end = () => {
+      audioRef.current = null;
+      setIdx(null);
+      setProgress(0);
+    };
     a.addEventListener("timeupdate", tick);
-    a.addEventListener("ended", () => stop());
+    a.addEventListener("ended", end);
     return () => {
       a.removeEventListener("timeupdate", tick);
+      a.removeEventListener("ended", end);
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [idx]);
+
+  /* 卸载时停音：否则切歌残留的 Audio 会在后台继续播 */
+  useEffect(() => {
+    return () => {
+      audioRef.current?.pause();
+      audioRef.current = null;
+    };
+  }, []);
 
   return (
     <div>

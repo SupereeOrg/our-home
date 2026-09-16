@@ -32,14 +32,33 @@ export default function SecretPage({
       return;
     }
     const t = setInterval(() => setStep((s) => (s < LETTER.length ? s + 1 : s)), 380);
-    return () => clearInterval(t);
+    // 信写完就停表，不空转到关闭
+    const stop = setTimeout(() => clearInterval(t), 380 * (LETTER.length + 1));
+    return () => {
+      clearInterval(t);
+      clearTimeout(stop);
+    };
   }, [open]);
+
+  /* Esc 关闭 */
+  useEffect(() => {
+    if (!open) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") onClose();
+    };
+    addEventListener("keydown", onKey);
+    return () => removeEventListener("keydown", onKey);
+  }, [open, onClose]);
 
   return (
     <AnimatePresence>
       {open && (
         <motion.div
           className="fixed inset-0 z-[9996] bg-ink text-cream overflow-y-auto scroll-slim"
+          role="dialog"
+          aria-modal="true"
+          aria-label="Superee 彩蛋信"
+          data-lenis-prevent
           initial={{ clipPath: "circle(0% at 50% 4%)" }}
           animate={{ clipPath: "circle(150% at 50% 4%)" }}
           exit={{ clipPath: "circle(0% at 50% 4%)" }}
