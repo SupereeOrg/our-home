@@ -9,14 +9,18 @@ import {
   ArrowUp,
   ArrowUpRight,
   Asterisk,
+  Atom,
   BookOpen,
+  Braces,
   CloudSun,
   Coffee,
+  Feather,
   Flower2,
   Gamepad2,
   Headphones,
   Heart,
   Images,
+  Layers,
   Leaf,
   Lightbulb,
   Hash,
@@ -26,14 +30,18 @@ import {
   MoonStar,
   MousePointerClick,
   Music,
+  PenLine,
   Plane,
   RotateCcw,
   Smile,
   Sparkles,
   Sunrise,
+  Triangle,
   Users,
   Waves,
+  Wind,
   X,
+  Zap,
 } from "lucide-react";
 import HeartBurst from "./components/HeartBurst";
 import ScrollRail from "./components/ScrollRail";
@@ -60,17 +68,39 @@ const fadeUp = {
 
 const stats = [
   { n: 2295, u: "km", label: "广州 ↔ 拉萨的距离", icon: MapPin },
-  { n: 18665, u: "条", label: "建站前已聊的消息", icon: MessagesSquare },
-  { n: 39, u: "次", label: "互道的晚安", icon: MoonStar },
-  { n: 79, u: "首", label: "分享给对方的歌", icon: Music },
+  { n: 21100, u: "条", label: "聊过的消息", icon: MessagesSquare },
+  { n: 43, u: "次", label: "互道的晚安", icon: MoonStar },
+  { n: 117253, u: "字", label: "写下的字", icon: PenLine },
 ];
+
+/* 数字位数越多字号越小，保证单位后缀不被挤到下一行 */
+const numSize = (n: number) => {
+  const d = String(n).replace(/\D/g, "").length;
+  if (d >= 6) return "clamp(22px,2.6vw,36px)";
+  if (d >= 3) return "clamp(28px,3vw,44px)";
+  return "clamp(32px,3.5vw,48px)";
+};
 
 const timeline = [
   { d: "2026 · 07 · 28", t: "两句招呼", p: "“我是su” / “原来我是ee吗”——名字就这么定下了。", icon: Sparkles },
   { d: "2026 · 08 · 28", t: "重新开始", p: "一个人先开口，故事按下重启键。", icon: RotateCcw },
   { d: "2026 · 09 · 10", t: "不再叫朋友", p: "有些话不用说出口，这个主页就是答案。", icon: Heart },
-  { d: "soon", t: "第一次见面", p: "把 2,295 km 走成 0 km，敬请期待。", icon: Plane },
+  { d: "soon", t: "第一次见面", p: "“等不及了，来找 ee 了怎么办。”——那就把 2,295 km 走成 0 km。", icon: Plane },
 ];
+
+/* 跑马灯内容：黑条只讲技术栈（全站唯一不放感情的地方），白条走晚安 */
+const TOP_STRIP = [
+  { icon: Layers, text: "NEXT.JS" },
+  { icon: Atom, text: "REACT" },
+  { icon: Wind, text: "TAILWIND" },
+  { icon: Zap, text: "FRAMER MOTION" },
+  { icon: Waves, text: "LENIS" },
+  { icon: Braces, text: "TYPESCRIPT" },
+  { icon: Feather, text: "LUCIDE" },
+  { icon: Triangle, text: "VERCEL" },
+];
+const NIGHT_STRIP = ["SLEEP WELL TONIGHT", "晚安", "SEE YOU IN SPRING", "明天见", "SU ♥ EE", "早点睡"];
+const STRIP_TINTS = ["text-[#F6C9D9]", "text-[#C9E7C4]", "opacity-50"];
 
 /* 导航模块 */
 const NAV = [
@@ -433,18 +463,18 @@ export default function Home() {
         <div className="h-7" />
       </header>
 
-      {/* 跑马灯 */}
-      <div className="marquee border-y-2 border-black bg-[#211d1b] text-[#FFFBF6] overflow-hidden whitespace-nowrap py-3.5">
-        <div className="inline-flex animate-marquee font-bold text-[15px] tracking-wider" style={{ fontFamily: "var(--font-space-grotesk), sans-serif" }}>
-          {[0, 1, 2, 3].map((i) => (
-            <span key={i} className="flex shrink-0 items-center" aria-hidden={i > 0}>
-              <span className="px-5">PAPEREE × SULIN</span>
-              <Asterisk size={14} className="text-[#F6C9D9]" />
-              <span className="px-5">GUANGZHOU ↔ LHASA</span>
-              <Asterisk size={14} className="text-[#C9E7C4]" />
-              <span className="px-5">2,295 KM</span>
-              <Asterisk size={14} className="opacity-50" />
-            </span>
+      {/* 跑马灯：两段完全相同的半程做 -50% 循环；每半程 12 节，超宽屏也不露空 */}
+      <div aria-hidden="true" className="marquee border-y-2 border-black bg-[#211d1b] text-[#FFFBF6] overflow-hidden whitespace-nowrap py-3.5">
+        <div className="flex w-max animate-marquee font-bold text-[15px] tracking-wider" style={{ fontFamily: "var(--font-space-grotesk), sans-serif" }}>
+          {[0, 1].map((half) => (
+            <div key={half} className="flex shrink-0 items-center">
+              {TOP_STRIP.concat(TOP_STRIP).map((s, i) => (
+                <span key={i} className="flex shrink-0 items-center gap-2 px-5">
+                  <s.icon size={14} className={STRIP_TINTS[i % 3]} />
+                  {s.text}
+                </span>
+              ))}
+            </div>
           ))}
         </div>
       </div>
@@ -455,7 +485,7 @@ export default function Home() {
           <div>
             <div className="text-[12px] font-bold tracking-[0.22em] bg-[#211d1b] text-[#FFFBF6] px-4 py-2 rounded-full w-max">01 · NUMBERS</div>
             <h3 className="mt-3 font-black leading-none tracking-tight" style={{ fontSize: "clamp(28px,4vw,48px)" }}>
-              不说太多，<span style={{ fontFamily: "var(--font-space-grotesk), sans-serif" }}>数字替我们说。</span>
+              攒下来的，<span style={{ fontFamily: "var(--font-space-grotesk), sans-serif" }}>都在这了。</span>
             </h3>
           </div>
         </motion.div>
@@ -471,7 +501,7 @@ export default function Home() {
                 value={s.n}
                 suffix={s.u}
                 className="block font-bold leading-none mt-3 tabular-nums"
-                style={{ fontFamily: "var(--font-space-grotesk), sans-serif", fontSize: "clamp(32px,3.5vw,48px)" }}
+                style={{ fontFamily: "var(--font-space-grotesk), sans-serif", fontSize: numSize(s.n) }}
               />
               <p className="text-[13px] font-bold mt-2">{s.label}</p>
             </motion.div>
@@ -515,10 +545,9 @@ export default function Home() {
           <div className="flex flex-col gap-3 text-[14px]">
             {(
               [
-                ["我们的主页", "Superee.xyz"],
-                ["状态", "相隔两地 · 各自努力"],
-                ["下期更新", <>旅行地图 / 歌单 / 问答 100 问 <ArrowUpRight size={14} className="inline" /></>],
-                ["联系我们", "hello@superee.xyz"],
+                ["ee", "广州 · 在读"],
+                ["su", "拉萨 · 在读"],
+                ["接下来", "先见一面，其他的再说"],
               ] as [string, React.ReactNode][]
             ).map(([k, v]) => (
               <div key={k} className="flex justify-between border-b border-dashed border-black/15 py-2.5 group">
@@ -552,24 +581,24 @@ export default function Home() {
             <h3 className="mt-3 font-black leading-none tracking-tight" style={{ fontSize: "clamp(28px,4vw,48px)" }}>
               同一片天，<span style={{ fontFamily: "var(--font-space-grotesk), sans-serif" }}>两座城。</span>
             </h3>
-            <p className="mt-3 text-[14px] text-[#5b5553]">实时天气 · 广州海拔 ~11m，拉萨海拔 ~3,656m。看到彼此的天气，就当打个照面。</p>
+            <p className="mt-3 text-[14px] text-[#5b5553]">实时天气 · 广州海拔 ~11m，拉萨海拔 ~3,656m。出门前，先看看对方头顶是什么天。</p>
           </div>
         </motion.div>
         <Weather />
       </section>
 
-      {/* 反向跑马灯 */}
-      <div className="marquee mt-20 border-y-2 border-black bg-cream overflow-hidden whitespace-nowrap py-3">
-        <div className="inline-flex animate-marquee-rev font-bold text-[13px] tracking-[0.2em] opacity-80">
-          {[0, 1, 2, 3].map((i) => (
-            <span key={i} className="flex shrink-0 items-center" aria-hidden={i > 0}>
-              <span className="px-6">SLEEP WELL TONIGHT</span>
-              <Asterisk size={12} />
-              <span className="px-6">SEE YOU IN SPRING</span>
-              <Asterisk size={12} />
-              <span className="px-6">SU ♥ EE</span>
-              <Asterisk size={12} />
-            </span>
+      {/* 反向跑马灯：同上，两段相同半程 + 12 节/半程 */}
+      <div aria-hidden="true" className="marquee mt-20 border-y-2 border-black bg-cream overflow-hidden whitespace-nowrap py-3">
+        <div className="flex w-max animate-marquee-rev font-bold text-[13px] tracking-[0.2em] opacity-80">
+          {[0, 1].map((half) => (
+            <div key={half} className="flex shrink-0 items-center">
+              {NIGHT_STRIP.concat(NIGHT_STRIP).map((s, i) => (
+                <span key={i} className="flex shrink-0 items-center">
+                  <span className="px-6">{s}</span>
+                  <Asterisk size={12} />
+                </span>
+              ))}
+            </div>
           ))}
         </div>
       </div>
@@ -589,22 +618,24 @@ export default function Home() {
           <div className="md:row-span-2 bg-[#211d1b] text-white border-2 border-black rounded-3xl p-6 flex flex-col justify-end relative overflow-hidden">
             <span className="absolute top-4 left-4 bg-white text-black border-[1.5px] border-black rounded-full text-[11px] font-extrabold px-2.5 py-1 flex items-center gap-1"><Heart size={11} />OUR STORY</span>
             <Image src="/avatars/mix-256.webp" alt="合体" width={96} height={96} className="rounded-2xl border-2 border-white/20 object-cover w-24 h-24 mb-auto mt-10" />
-            <h5 className="text-[20px] font-bold leading-snug mt-4">一半青提气泡水，<br />一半草莓牛奶。</h5>
+            <h5 className="text-[20px] font-bold leading-snug mt-4">“我正在等你，<br />汽水分你一半。”</h5>
             <p className="text-[13px] opacity-70 mt-2">Superee = su per ee —— su 有一个 ee，全世界独一个。</p>
           </div>
           <div className="lift bg-[#C9E7C4] border-2 border-black rounded-3xl p-6 flex flex-col justify-end relative">
             <div className="font-bold text-[52px] leading-none" style={{ fontFamily: "var(--font-space-grotesk), sans-serif" }}>01</div>
-            <h5 className="text-[18px] font-bold mt-2">海边的角落</h5>
+            <h5 className="text-[18px] font-bold mt-2">ee 的深夜档</h5>
+            <p className="text-[13px] font-medium mt-1 opacity-70">熬夜冠军 · 分享歌不打烊</p>
           </div>
           <div className="lift bg-[#F6C9D9] border-2 border-black rounded-3xl p-6 flex flex-col justify-end relative">
             <div className="font-bold text-[52px] leading-none" style={{ fontFamily: "var(--font-space-grotesk), sans-serif" }}>02</div>
-            <h5 className="text-[18px] font-bold mt-2">高原上的角落</h5>
+            <h5 className="text-[18px] font-bold mt-2">su 的白天档</h5>
+            <p className="text-[13px] font-medium mt-1 opacity-70">游泳 · 上课 · 早睡</p>
           </div>
           <div className="lift border-2 border-black rounded-3xl p-6 flex gap-4 items-center bg-white">
             <Image src="/avatars/paperee-256.webp" alt="纸片君" width={72} height={72} className="rounded-full border-2 border-black object-cover w-[72px] h-[72px]" />
             <span className="grid place-items-center w-8 h-8 shrink-0"><X size={18} strokeWidth={3} /></span>
             <Image src="/avatars/sulin-256.webp" alt="苏淋" width={72} height={72} className="rounded-full border-2 border-black object-cover w-[72px] h-[72px]" />
-            <p className="text-[13px] text-[#5b5553] leading-6">13,453 条文字<br />3,352 个表情</p>
+            <p className="text-[13px] text-[#5b5553] leading-6">16,590 条文字<br />3,897 个表情</p>
           </div>
           <div className="lift border-2 border-black rounded-3xl p-6 bg-white flex flex-col justify-end">
             <div className="font-bold text-[40px] leading-none" style={{ fontFamily: "var(--font-space-grotesk), sans-serif" }}>2<span className="text-[16px]">人 / 2城 / 1站</span></div>
@@ -666,13 +697,13 @@ export default function Home() {
         </div>
         <p className="mt-6 text-[13px] opacity-60 flex flex-wrap items-center justify-center gap-2">
           <Mail size={14} /> 写信给我们
-          <a href="mailto:hello@superee.xyz" className="u-line font-bold text-[#FFFBF6] inline-flex items-center gap-1">
-            hello@superee.xyz <ArrowUpRight size={13} />
+          <a href="mailto:hello@onnx.click" className="u-line font-bold text-[#FFFBF6] inline-flex items-center gap-1">
+            hello@onnx.click <ArrowUpRight size={13} />
           </a>
         </p>
         <small className="mt-6 opacity-50 text-[12px] tracking-widest flex flex-wrap items-center justify-center gap-x-2 gap-y-1">
           © 2026 SUPEREE · EE <Heart size={11} className="fill-current" /> SU ·
-          <MousePointerClick size={12} /> 试试 5 连点它 <ArrowUp size={12} />
+          <MousePointerClick size={12} /> 顶部徽章连点 5 下 <ArrowUp size={12} />
         </small>
       </footer>
     </main>

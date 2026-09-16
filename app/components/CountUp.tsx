@@ -38,9 +38,9 @@ export default function CountUp({
   }, [inView, value, duration]);
 
   return (
-    <span ref={ref} className={className} style={style}>
+    <span ref={ref} className={`whitespace-nowrap ${className}`} style={style}>
       {txt}
-      {suffix && <span className="text-[16px] ml-1">{suffix}</span>}
+      {suffix && <span className="text-[14px] ml-1">{suffix}</span>}
     </span>
   );
 }

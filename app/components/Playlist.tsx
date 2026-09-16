@@ -189,11 +189,11 @@ export default function Playlist() {
         共 {PLAYLIST.length} 首 · 音源为 iTunes 官方 30 秒试听 ·
         <a
           className="u-line font-bold text-ink ml-1"
-          href={idx !== null ? `https://music.163.com/#/search/m/?s=${encodeURIComponent(PLAYLIST[idx].q)}` : "https://music.163.com"}
+          href={idx !== null ? `https://www.kugou.com/yy/html/search.html#searchType=song&searchKeyWord=${encodeURIComponent(PLAYLIST[idx].q)}` : "https://www.kugou.com"}
           target="_blank"
           rel="noreferrer"
         >
-          完整版
+          酷狗完整版
         </a>
       </p>
     </div>
