@@ -60,10 +60,10 @@ function GithubMark({ size = 16 }: { size?: number }) {
 }
 
 const fadeUp = {
-  initial: { opacity: 0, y: 28 },
-  whileInView: { opacity: 1, y: 0 },
-  viewport: { once: true, margin: "-80px" },
-  transition: { duration: 0.7, ease: [0.22, 1, 0.36, 1] as const },
+  initial: { opacity: 0, y: 36, filter: "blur(6px)" },
+  whileInView: { opacity: 1, y: 0, filter: "blur(0px)" },
+  viewport: { once: true, margin: "-60px" },
+  transition: { duration: 0.9, ease: [0.22, 1, 0.36, 1] as const },
 };
 
 const stats = [
@@ -149,7 +149,7 @@ export default function Home() {
   useMotionValueEvent(scrollY, "change", (y) => setNavCompact(y > 260));
 
   useEffect(() => {
-    const lenis = new Lenis({ lerp: 0.12 });
+    const lenis = new Lenis({ lerp: 0.09 });
     lenisRef.current = lenis;
     const raf = (t: number) => {
       lenis.raf(t);
@@ -325,20 +325,23 @@ export default function Home() {
         </Magnetic>
       </motion.nav>
 
-      {/* Hero */}
+      {/* Hero：首屏独占 100svh，标题居中，卡片滚下去再看 */}
       <header
         ref={heroRef}
-        className="min-h-[100svh] flex flex-col justify-end px-6 pt-28"
+        className="relative h-[100svh] min-h-[620px] flex flex-col px-6 pt-24 pb-7"
         style={{
           background:
             "radial-gradient(700px 500px at 15% 20%, #F6C9D9 0%, transparent 60%), radial-gradient(700px 500px at 85% 25%, #C9E7C4 0%, transparent 60%), #FFFBF6",
         }}
       >
-        <div className="max-w-6xl mx-auto w-full flex flex-wrap justify-between items-end gap-5">
-          <motion.div style={{ x: heroTitleX, opacity: heroTitleOpacity }} className="flex-1 min-w-[280px]">
+        <div className="max-w-6xl mx-auto w-full flex-1 flex flex-col justify-center">
+          <motion.p {...fadeUp} className="w-max text-[12px] font-bold tracking-[0.2em] bg-white border-2 border-black rounded-full px-4 py-2 hard-shadow-sm flex items-center gap-2">
+            <MapPin size={13} /> 广州 ↔ 拉萨 · 2,295 KM
+          </motion.p>
+          <motion.div style={{ x: heroTitleX, opacity: heroTitleOpacity }} className="w-full">
             <motion.h1
-              className="font-bold uppercase leading-[0.9] tracking-[-0.04em] mt-4"
-              style={{ fontFamily: "var(--font-space-grotesk), sans-serif", fontSize: "clamp(56px,10vw,140px)" }}
+              className="font-bold uppercase leading-[0.88] tracking-[-0.04em] mt-5"
+              style={{ fontFamily: "var(--font-space-grotesk), sans-serif", fontSize: "clamp(64px,11vw,168px)" }}
             >
               <Reveal text="PAPEREE" />
               <br />
@@ -351,117 +354,85 @@ export default function Home() {
             )}
           </motion.div>
 
-          {/* 合体徽章：含蓄表达的核心 */}
-          <motion.div {...fadeUp} className="flex items-center gap-4 group">
-            <div className="relative">
+          {/* 合体徽章：标题之下横排，不抢高度 */}
+          <motion.div {...fadeUp} className="flex items-center gap-4 group mt-7">
+            <div className="relative shrink-0">
               <Image
                 src="/avatars/mix-512.webp"
                 alt="纸片君与苏淋的合体形象"
-                width={132}
-                height={132}
+                width={88}
+                height={88}
                 priority
-                className="rounded-full border-[3px] border-black object-cover w-[132px] h-[132px] shadow-[6px_6px_0_#211d1b] group-hover:rotate-6 group-active:rotate-12 transition-transform duration-500"
+                className="rounded-full border-[3px] border-black object-cover w-[88px] h-[88px] shadow-[5px_5px_0_#211d1b] group-hover:rotate-6 group-active:rotate-12 transition-transform duration-500"
               />
-              <span className="absolute -bottom-2 -right-2 bg-white border-2 border-black rounded-full w-9 h-9 grid place-items-center group-hover:opacity-100 opacity-0 transition-opacity animate-heartbeat" title="一起">
-                <Heart size={15} />
+              <span className="absolute -bottom-1.5 -right-1.5 bg-white border-2 border-black rounded-full w-8 h-8 grid place-items-center group-hover:opacity-100 opacity-0 transition-opacity animate-heartbeat" title="一起">
+                <Heart size={13} />
               </span>
             </div>
-            <p className="max-w-[240px] text-[14px] leading-7 text-[#4a4442]">
-              一个在海边，一个在高原。
-              <br />
-              中间这枚合体徽章，
-              <br />
-              是我们相遇的证明。
+            <p className="max-w-[420px] text-[14px] leading-7 text-[#4a4442]">
+              一个在海边，一个在高原。中间这枚合体徽章，是我们相遇的证明。
             </p>
           </motion.div>
         </div>
 
-        {/* 双人三联 */}
-        <motion.div
-          {...fadeUp}
-          id="duo"
-          className="max-w-6xl mx-auto w-full grid md:grid-cols-[1fr_auto_1fr] border-2 border-black rounded-[32px] overflow-hidden bg-white hard-shadow mt-9"
-        >
-          {/* 纸片君：广州，绿 —— 第一位 */}
-          <div id="paperee" className="p-8 min-h-[440px] flex flex-col bg-gradient-to-b from-[#EAF8E6] to-[#C9E7C4] scroll-mt-24">
-            <span className="text-[12px] font-bold tracking-[0.18em] bg-[#211d1b] text-[#FFFBF6] px-4 py-2 rounded-full w-max">01 · 纸片君 PAPEREE</span>
-            <h2 className="font-bold leading-none mt-5" style={{ fontFamily: "var(--font-space-grotesk), sans-serif", fontSize: "clamp(40px,4.5vw,64px)" }}>
-              PAPEREE
-            </h2>
-            <dl className="w-full max-w-[320px] mt-5 text-[13.5px]">
-              <div className="flex justify-between gap-4 border-b border-dashed border-black/20 py-2">
-                <dt className="opacity-60">坐标</dt><dd className="font-bold">广州 · 海边</dd>
-              </div>
-              <div className="flex justify-between gap-4 border-b border-dashed border-black/20 py-2">
-                <dt className="opacity-60">现状</dt><dd className="font-bold">在广州上学</dd>
-              </div>
-            </dl>
-            <p className="text-[15px] font-medium leading-8 max-w-[320px] mt-5 mb-8 text-[#3d3836]">
-              “表情丰富，撒娇从不缺席。熬夜的时候除外——那时满脑子都是 su。”
-            </p>
-            <Image
-              src="/avatars/paperee-512.webp"
-              alt="纸片君头像"
-              width={148}
-              height={148}
-              className="rounded-full border-[3px] border-black object-cover w-[148px] h-[148px] shadow-[6px_6px_0_#211d1b] mt-auto group-hover:rotate-3 transition-transform duration-500 hover:rotate-6"
-            />
-            <div className="flex gap-2 flex-wrap mt-4">
-              {[
-                { icon: Coffee, text: "喝茶" },
-                { icon: Headphones, text: "分享歌" },
-                { icon: Smile, text: "撒娇冠军" },
-                { icon: MoonStar, text: "熬夜冠军" },
-              ].map((t) => (
-                <span key={t.text} className="bg-white border-[1.5px] border-black rounded-full px-3 py-1.5 text-[12px] font-bold flex items-center gap-1.5 hover:-rotate-2 hover:-translate-y-0.5 transition-transform cursor-default"><t.icon size={13} />{t.text}</span>
-              ))}
-            </div>
-          </div>
-
-          <div className="bg-[#211d1b] text-white flex md:flex-col flex-row items-center justify-center gap-3 px-5 py-4 min-w-[92px]">
-            <div className="w-14 h-14 rounded-full bg-white text-black grid place-items-center"><X size={26} strokeWidth={3} /></div>
-            <small className="md:[writing-mode:vertical-rl] tracking-[0.4em] text-[11px] opacity-70">2,295 KM APART</small>
-            <div className="grid place-items-center"><Heart size={20} className="animate-heartbeat fill-current" /></div>
-          </div>
-
-          {/* 苏淋：唐山人，在拉萨上学 —— 第二位 */}
-          <div id="sulin" className="p-8 min-h-[440px] flex flex-col items-end text-right bg-gradient-to-b from-[#FDE9F1] to-[#F6C9D9] scroll-mt-24">
-            <span className="text-[12px] font-bold tracking-[0.18em] bg-[#211d1b] text-[#FFFBF6] px-4 py-2 rounded-full w-max">02 · 苏淋 SULIN</span>
-            <h2 className="font-bold leading-none mt-5" style={{ fontFamily: "var(--font-space-grotesk), sans-serif", fontSize: "clamp(40px,4.5vw,64px)" }}>
-              SULIN
-            </h2>
-            <dl className="w-full max-w-[320px] mt-5 text-[13.5px]">
-              <div className="flex justify-between gap-4 border-b border-dashed border-black/20 py-2">
-                <dt className="opacity-60">籍贯</dt><dd className="font-bold">河北唐山</dd>
-              </div>
-              <div className="flex justify-between gap-4 border-b border-dashed border-black/20 py-2">
-                <dt className="opacity-60">现居</dt><dd className="font-bold">拉萨 · 在读</dd>
-              </div>
-            </dl>
-            <p className="text-[15px] font-medium leading-8 max-w-[320px] mt-5 mb-8 text-[#3d3836]">
-              “话多主动，报备从不缺席。游泳的时候除外——那时满脑子都是 ee。”
-            </p>
-            <Image
-              src="/avatars/sulin-512.webp"
-              alt="苏淋头像"
-              width={148}
-              height={148}
-              className="rounded-full border-[3px] border-black object-cover w-[148px] h-[148px] shadow-[6px_6px_0_#211d1b] mt-auto hover:rotate-6 transition-transform duration-500"
-            />
-            <div className="flex gap-2 flex-wrap mt-4 justify-end">
-              {[
-                { icon: Waves, text: "游泳" },
-                { icon: Gamepad2, text: "王者荣耀" },
-                { icon: Lightbulb, text: "收集想法" },
-                { icon: Sunrise, text: "早睡" },
-              ].map((t) => (
-                <span key={t.text} className="bg-white border-[1.5px] border-black rounded-full px-3 py-1.5 text-[12px] font-bold flex items-center gap-1.5 hover:rotate-2 hover:-translate-y-0.5 transition-transform cursor-default"><t.icon size={13} />{t.text}</span>
-              ))}
-            </div>
-          </div>
-        </motion.div>
-        <div className="h-7" />
+        {/* 首屏底栏：滚动提示 */}
+        <div className="max-w-6xl mx-auto w-full flex items-end justify-between gap-4 text-[12px] font-bold tracking-[0.18em]">
+          <a href="#duo" className="flex items-center gap-2 bg-ink text-cream rounded-full px-4 py-2.5">
+            往下滑 <ArrowUp size={13} className="rotate-180 animate-bounce" />
+          </a>
+          <span className="hidden sm:block opacity-50" style={{ fontFamily: "var(--font-space-grotesk), sans-serif" }}>2 PEOPLE / 2 CITIES / 1 PAGE</span>
+        </div>
       </header>
+
+      {/* 双人：全屏对开，不再是卡片。左绿右粉，中间一枚距离章 */}
+      <section className="relative min-h-[100svh] flex flex-col border-t-2 border-black">
+        <div id="duo" className="grid md:grid-cols-2 flex-1 scroll-mt-24">
+          {/* 纸片君 */}
+          <motion.div {...fadeUp} id="paperee" className="relative flex flex-col justify-center gap-4 p-8 md:p-14 bg-[#EAF8E6] min-h-[44vh] overflow-hidden scroll-mt-24">
+            <span className="font-black leading-[0.8] select-none pointer-events-none absolute -bottom-6 -left-2 text-[26vw] md:text-[11vw] opacity-[0.08]" style={{ fontFamily: "var(--font-space-grotesk), sans-serif" }}>ee</span>
+            <div className="flex items-center gap-3">
+              <Image src="/avatars/paperee-512.webp" alt="纸片君头像" width={64} height={64} className="rounded-full border-2 border-black object-cover w-16 h-16" />
+              <span className="text-[11px] font-bold tracking-[0.18em] bg-ink text-cream px-3 py-1.5 rounded-full">01 · 纸片君 PAPEREE</span>
+            </div>
+            <h2 className="serif-cn font-black leading-[0.85] tracking-tight italic" style={{ fontSize: "clamp(56px,7vw,110px)" }}>ee</h2>
+            <p className="text-[13px] font-bold tracking-wide opacity-60">广州 · 海边 — 在广州上学</p>
+            <p className="serif-cn text-[16px] leading-8 max-w-[340px]">“表情丰富，撒娇从不缺席。熬夜的时候除外——那时满脑子都是 su。”</p>
+            <p className="text-[12px] font-bold opacity-60 flex flex-wrap gap-x-2 gap-y-1">
+              <span className="inline-flex items-center gap-1"><Coffee size={12} />喝茶</span>·
+              <span className="inline-flex items-center gap-1"><Headphones size={12} />分享歌</span>·
+              <span className="inline-flex items-center gap-1"><Smile size={12} />撒娇冠军</span>·
+              <span className="inline-flex items-center gap-1"><MoonStar size={12} />熬夜冠军</span>
+            </p>
+          </motion.div>
+
+          {/* 苏淋 */}
+          <motion.div {...fadeUp} id="sulin" className="relative flex flex-col justify-center md:items-end md:text-right gap-4 p-8 md:p-14 bg-[#FDE9F1] min-h-[44vh] overflow-hidden border-t-2 md:border-t-0 md:border-l-2 border-black scroll-mt-24">
+            <span className="font-black leading-[0.8] select-none pointer-events-none absolute -bottom-6 -right-2 text-[26vw] md:text-[11vw] opacity-[0.08]" style={{ fontFamily: "var(--font-space-grotesk), sans-serif" }}>su</span>
+            <div className="flex items-center gap-3 md:flex-row-reverse">
+              <Image src="/avatars/sulin-512.webp" alt="苏淋头像" width={64} height={64} className="rounded-full border-2 border-black object-cover w-16 h-16" />
+              <span className="text-[11px] font-bold tracking-[0.18em] bg-ink text-cream px-3 py-1.5 rounded-full">02 · 苏淋 SULIN</span>
+            </div>
+            <h2 className="serif-cn font-black leading-[0.85] tracking-tight italic" style={{ fontSize: "clamp(56px,7vw,110px)" }}>su</h2>
+            <p className="text-[13px] font-bold tracking-wide opacity-60">河北唐山 — 现居拉萨 · 在读</p>
+            <p className="serif-cn text-[16px] leading-8 max-w-[340px]">“话多主动，报备从不缺席。游泳的时候除外——那时满脑子都是 ee。”</p>
+            <p className="text-[12px] font-bold opacity-60 flex flex-wrap gap-x-2 gap-y-1 md:justify-end">
+              <span className="inline-flex items-center gap-1"><Waves size={12} />游泳</span>·
+              <span className="inline-flex items-center gap-1"><Gamepad2 size={12} />王者荣耀</span>·
+              <span className="inline-flex items-center gap-1"><Lightbulb size={12} />收集想法</span>·
+              <span className="inline-flex items-center gap-1"><Sunrise size={12} />早睡</span>
+            </p>
+          </motion.div>
+        </div>
+
+        {/* 中缝距离章：桌面居中，移动端贴顶 */}
+        <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 md:top-1/2 z-10">
+          <div className="bg-ink text-cream border-2 border-black rounded-full px-5 py-3 flex items-center gap-2 shadow-[4px_4px_0_rgba(0,0,0,0.25)] whitespace-nowrap">
+            <X size={15} strokeWidth={3} />
+            <span className="text-[11px] font-black tracking-[0.25em]" style={{ fontFamily: "var(--font-space-grotesk), sans-serif" }}>2,295 KM</span>
+            <Heart size={13} className="fill-current animate-heartbeat" />
+          </div>
+        </div>
+      </section>
 
       {/* 跑马灯：两段完全相同的半程做 -50% 循环；每半程 12 节，超宽屏也不露空 */}
       <div aria-hidden="true" className="marquee border-y-2 border-black bg-[#211d1b] text-[#FFFBF6] overflow-hidden whitespace-nowrap py-3.5">
@@ -480,7 +451,7 @@ export default function Home() {
       </div>
 
       {/* 数字：不说爱，数字替我们说 */}
-      <section id="numbers" className="max-w-6xl mx-auto px-6 pt-20">
+      <section id="numbers" className="max-w-6xl mx-auto px-6 py-24">
         <motion.div {...fadeUp} className="flex flex-wrap items-end justify-between gap-4 mb-7">
           <div>
             <div className="text-[12px] font-bold tracking-[0.22em] bg-[#211d1b] text-[#FFFBF6] px-4 py-2 rounded-full w-max">01 · NUMBERS</div>
@@ -510,7 +481,7 @@ export default function Home() {
       </section>
 
       {/* 时间线 */}
-      <section id="story" className="max-w-6xl mx-auto px-6 pt-20">
+      <section id="story" className="max-w-6xl mx-auto px-6 py-24">
         <motion.div {...fadeUp} className="flex flex-wrap items-end justify-between gap-4 mb-7">
           <div>
             <div className="text-[12px] font-bold tracking-[0.22em] bg-[#211d1b] text-[#FFFBF6] px-4 py-2 rounded-full w-max">02 · STORY</div>
@@ -559,7 +530,7 @@ export default function Home() {
       </section>
 
       {/* 歌单 */}
-      <section id="playlist" className="max-w-6xl mx-auto px-6 pt-20">
+      <section id="playlist" className="max-w-6xl mx-auto px-6 py-24">
         <motion.div {...fadeUp} className="flex flex-wrap items-end justify-between gap-4 mb-7">
           <div>
             <div className="text-[12px] font-bold tracking-[0.22em] bg-[#211d1b] text-[#FFFBF6] px-4 py-2 rounded-full w-max">03 · PLAYLIST</div>
@@ -574,7 +545,7 @@ export default function Home() {
       </section>
 
       {/* 双城天气 */}
-      <section id="weatherpro" className="max-w-6xl mx-auto px-6 pt-20">
+      <section id="weatherpro" className="max-w-6xl mx-auto px-6 py-24">
         <motion.div {...fadeUp} className="flex flex-wrap items-end justify-between gap-4 mb-7">
           <div>
             <div className="text-[12px] font-bold tracking-[0.22em] bg-[#211d1b] text-[#FFFBF6] px-4 py-2 rounded-full w-max">04 · TWO SKIES</div>
@@ -604,7 +575,7 @@ export default function Home() {
       </div>
 
       {/* 日常拼贴 */}
-      <section id="moments" className="max-w-6xl mx-auto px-6 pt-20">
+      <section id="moments" className="max-w-6xl mx-auto px-6 py-24">
         <motion.div {...fadeUp} className="flex flex-wrap items-end justify-between gap-4 mb-7">
           <div>
             <div className="text-[12px] font-bold tracking-[0.22em] bg-[#211d1b] text-[#FFFBF6] px-4 py-2 rounded-full w-max">05 · MOMENTS</div>

@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Space_Grotesk, Noto_Sans_SC } from "next/font/google";
+import { Space_Grotesk, Noto_Sans_SC, Noto_Serif_SC, Caveat } from "next/font/google";
 import "./globals.css";
 
 const spaceGrotesk = Space_Grotesk({
@@ -12,6 +12,20 @@ const notoSansSC = Noto_Sans_SC({
   subsets: ["latin"],
   weight: ["400", "500", "700", "900"],
   variable: "--font-noto-sans-sc",
+  display: "swap",
+});
+
+const notoSerifSC = Noto_Serif_SC({
+  subsets: ["latin"],
+  weight: ["400", "600", "900"],
+  variable: "--font-noto-serif-sc",
+  display: "swap",
+});
+
+const caveat = Caveat({
+  subsets: ["latin"],
+  weight: ["500", "700"],
+  variable: "--font-hand",
   display: "swap",
 });
 
@@ -37,7 +51,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="zh-CN" suppressHydrationWarning className={`${spaceGrotesk.variable} ${notoSansSC.variable}`}>
+    <html lang="zh-CN" suppressHydrationWarning className={`${spaceGrotesk.variable} ${notoSansSC.variable} ${notoSerifSC.variable} ${caveat.variable}`}>
       <body>{children}</body>
     </html>
   );

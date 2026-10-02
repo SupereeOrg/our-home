@@ -8,6 +8,17 @@
   --color-cream: #fffbf6;
   --color-ink: #211d1b;
   --font-display: var(--font-space-grotesk), "Noto Sans SC", sans-serif;
+  --font-serif-sc: var(--font-noto-serif-sc), "Noto Serif SC", serif;
+  --font-hand: var(--font-hand), cursive;
+}
+
+.serif-cn {
+  font-family: var(--font-noto-serif-sc), "Noto Serif SC", serif;
+  letter-spacing: 0.01em;
+}
+
+.hand-en {
+  font-family: var(--font-hand), cursive;
 }
 
 :root {
@@ -16,6 +27,7 @@
 
 html {
   scroll-behavior: smooth;
+  /* snap 全删：硬切的根源。翻页感改用 Lenis 惯性 + 内容柔入，不再吸住 */
 }
 
 /* ---------- 滚动条：原生 overlay 方案 ----------
