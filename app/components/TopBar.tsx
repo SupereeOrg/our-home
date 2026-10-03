@@ -117,7 +117,7 @@ export default function TopBar({ right, onLogoClick }: { right?: ReactNode; onLo
   const footer = <p className="px-6 pb-10 kicker opacity-40">© 2026 八页纸 · 广州 ↔ 拉萨</p>;
   const logo = (
     <>
-      <Image src="/avatars/mix-256.webp" alt="八页纸" width={24} height={24} className="object-cover w-[24px] h-[24px] opacity-90" />
+      <Image src="/avatars/mix-256.webp" alt="八页纸" width={96} height={96} unoptimized loading="eager" className="object-cover opacity-90" style={{ width: 24, height: 24 }} />
       <span className="font-black text-[18px] tracking-[0.1em] opacity-90 group-hover:opacity-100 transition">八页纸</span>
       <span className="kicker opacity-45 hidden sm:inline">ee × su</span>
     </>
@@ -140,7 +140,7 @@ export default function TopBar({ right, onLogoClick }: { right?: ReactNode; onLo
       )}
       <nav className="hidden md:flex absolute left-1/2 -translate-x-1/2 items-center gap-6" aria-label="站内">
         {NAV_LINKS.map((l) => {
-          const active = !l.external && (pathname === l.href || (l.href !== "/" && pathname.startsWith(`${l.href}/`)));
+          const active = isActive(l.href, l.external);
           const cls = "kicker navlink";
           if (active) {
             return (

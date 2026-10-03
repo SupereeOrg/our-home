@@ -7,6 +7,7 @@ import remarkDirective from "remark-directive";
 import remarkGfm from "remark-gfm";
 import remarkMath from "remark-math";
 import rehypeKatex from "rehype-katex";
+import "katex/dist/katex.min.css"; /* 公式只在信详情用，不进首页首屏 */
 import paperDirectives from "@/lib/paper-directives";
 import { ArrowLeft, ArrowRight } from "lucide-react";
 import AllowScroll from "../../components/AllowScroll";
@@ -51,7 +52,7 @@ export default async function LetterPage({ params }: { params: Promise<{ slug: s
       <article className="relative max-w-2xl mx-auto px-6 pt-28 pb-16">
         {/* 署名栏 */}
         <div className="flex items-center gap-3 mt-6">
-          <Image src={avatar} alt={who} width={40} height={40} priority className="border border-ink object-cover w-10 h-10" />
+          <Image src={avatar} alt={who} width={96} height={96} unoptimized loading="eager" className="border border-ink object-cover" style={{ width: 40, height: 40 }} />
           <div>
             <p className="text-[13px] font-bold">{who}</p>
             <p className="kicker opacity-50 mt-0.5">
@@ -82,7 +83,7 @@ export default async function LetterPage({ params }: { params: Promise<{ slug: s
 
         {/* 落款印 */}
         <div className="mt-12 flex flex-col items-center gap-3 text-center">
-          <Image src={avatar} alt={who} width={52} height={52} className="border border-ink object-cover w-[52px] h-[52px] opacity-90" />
+          <Image src={avatar} alt={who} width={96} height={96} unoptimized loading="lazy" className="border border-ink object-cover opacity-90" style={{ width: 52, height: 52 }} />
           <p className="text-[13px] font-bold tracking-[0.2em]">{FROM_META[letter.from].sign} 寄 · {letter.date || "未署期"}</p>
           <p className="kicker opacity-40">· 全文完 ·</p>
           {/* 纸房子自家许可：官方皮，温柔馅 */}

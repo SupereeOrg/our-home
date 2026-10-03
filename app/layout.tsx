@@ -7,7 +7,6 @@ import "@fontsource/noto-serif-sc/900.css";
 import "@fontsource/space-grotesk/400.css";
 import "@fontsource/space-grotesk/500.css";
 import "@fontsource/space-grotesk/700.css";
-import "katex/dist/katex.min.css"; /* 公式字体按需加载，只在信里有 $…$ 时生效 */
 import "./globals.css";
 import ConsoleEgg from "./components/ConsoleEgg";
 

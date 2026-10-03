@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { ReactNode } from "react";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 import { Link } from "next-view-transitions";
 import { AnimatePresence, motion } from "framer-motion";
 import { ArrowRight, Heart, MapPin } from "lucide-react";
@@ -213,11 +214,17 @@ function PageShell({ children }: { children: ReactNode }) {
   );
 }
 
-/* 头像：纸框慢推，全站同一只。priority 常驻：封面三枚首屏见，人物两张翻页即见，进站一次下完 */
-function Avatar({ src, alt, size = 76, className = "" }: { src: string; alt: string; size?: number; className?: string }) {
+/* 头像：全站同一套 256 源 + 直出原图（已是 webp，不走 _next/image），src 一致即缓存命中。
+   显示尺寸走 style，intrinsic 固定，避免 w=52/76 拆成两个优化 URL。
+   只有封面首枚 preload，其余 eager 不抢 LCP。 */
+function Avatar({ src, alt, size = 76, className = "", eager }: { src: string; alt: string; size?: number; className?: string; eager?: boolean }) {
   return (
     <motion.span variants={imgReveal} className={`block overflow-hidden border border-ink shrink-0 ${className}`} style={{ width: size, height: size }}>
-      <Image src={src} alt={alt} width={size} height={size} priority className="object-cover" style={{ width: size, height: size }} />
+      {eager ? (
+        <Image src={src} alt={alt} width={256} height={256} priority unoptimized className="object-cover" style={{ width: size, height: size }} />
+      ) : (
+        <Image src={src} alt={alt} width={256} height={256} unoptimized loading="eager" className="object-cover" style={{ width: size, height: size }} />
+      )}
     </motion.span>
   );
 }
@@ -273,6 +280,17 @@ export default function Home() {
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const [reduced, setReduced] = useState(false);
   const weather = useWeather();
+  const router = useRouter();
+  /* 路由 + 图片双预热：顶栏移动端链接不在视口不触发自动 prefetch，这里手动暖一次；
+     人物两张翻页即见，进站即用 Image 对象预下，翻页缓存命中，不再先框后图 */
+  useEffect(() => {
+    router.prefetch("/letters");
+    for (const src of ["/avatars/paperee-256.webp", "/avatars/sulin-256.webp", "/avatars/mix-256.webp"]) {
+      const img = new window.Image();
+      img.decoding = "async";
+      img.src = src;
+    }
+  }, [router]);
   /* 信预告：进站即取，用户翻到第七页时大概率已就绪 */
   const [letters, setLetters] = useState<LetterMeta[] | null>(null);
   useEffect(() => {
@@ -656,9 +674,9 @@ export default function Home() {
 
                   <motion.div variants={rise} className="flex items-center gap-5 mt-8 border-t rule pt-6">
                     <span className="flex items-center shrink-0">
-                      <Avatar src="/avatars/paperee-512.webp" alt="纸片君" size={52} />
-                      <Avatar src="/avatars/mix-512.webp" alt="合体徽章" size={52} className="-ml-3" />
-                      <Avatar src="/avatars/sulin-512.webp" alt="苏淋" size={52} className="-ml-3" />
+                      <Avatar src="/avatars/paperee-256.webp" alt="纸片君" size={52} eager />
+                      <Avatar src="/avatars/mix-256.webp" alt="合体徽章" size={52} className="-ml-3" />
+                      <Avatar src="/avatars/sulin-256.webp" alt="苏淋" size={52} className="-ml-3" />
                     </span>
                     <p className="text-[14px] leading-7 max-w-[420px] opacity-80">一个在海边，一个在高原。往下翻就是了。</p>
                   </motion.div>
@@ -669,7 +687,7 @@ export default function Home() {
             {page === 1 && (
               <PersonPage
                 kicker="其一 · 纸片君 PAPEREE"
-                avatar="/avatars/paperee-512.webp"
+                avatar="/avatars/paperee-256.webp"
                 avatarAlt="纸片君"
                 word="ee"
                 meta="广州 · 海边 — 在广州上学"
@@ -681,7 +699,7 @@ export default function Home() {
             {page === 2 && (
               <PersonPage
                 kicker="其二 · 苏淋 SULIN"
-                avatar="/avatars/sulin-512.webp"
+                avatar="/avatars/sulin-256.webp"
                 avatarAlt="苏淋"
                 word="su"
                 meta="河北唐山 — 现居拉萨 · 在读"
@@ -768,7 +786,7 @@ export default function Home() {
                           className={`group w-full flex items-center gap-3 px-3.5 py-2.5 text-left border-b rule last:border-b-0 transition-colors duration-200 ${track === i ? "bg-ink text-paper" : "hover:bg-black/[0.04]"}`}
                         >
                           <span className="block w-10 h-10 overflow-hidden border border-current shrink-0 opacity-90">
-                            <Image src={t.art} alt={t.track} width={40} height={40} unoptimized className="object-cover w-10 h-10" />
+                            <Image src={t.art} alt={t.track} width={40} height={40} unoptimized sizes="40px" loading={i < 3 ? "eager" : "lazy"} className="object-cover w-10 h-10" />
                           </span>
                           <span className="min-w-0 flex-1">
                             <span className="block text-[13.5px] font-bold truncate">{String(i + 1).padStart(2, "0")} · {t.track}</span>

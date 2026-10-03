@@ -24,7 +24,7 @@ function parseTags(data: Record<string, unknown>): string[] {
   return [...new Set(list.map((t) => String(t).trim()).filter(Boolean))];
 }
 
-/* 单次读盘 + 组装 meta，getLetterMeta/getLetter 共用，不再各读一遍 */
+/* 单次读盘 + 组装 meta，getLetter 共用 */
 function readLetter(slug: string): Letter | null {
   const file = path.join(DIR, `${slug}.md`);
   if (!fs.existsSync(file)) return null;
@@ -49,13 +49,6 @@ export function getLetterSlugs(): string[] {
     .readdirSync(DIR)
     .filter((f) => f.endsWith(".md"))
     .map((f) => f.replace(/\.md$/, ""));
-}
-
-export function getLetterMeta(slug: string): LetterMeta | null {
-  const l = readLetter(slug);
-  if (!l) return null;
-  const { content: _content, ...meta } = l;
-  return meta;
 }
 
 export function getAllLetters(): LetterMeta[] {
