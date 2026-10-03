@@ -1,11 +1,11 @@
 import type { MetadataRoute } from "next";
-import { getAllLettersWithContent } from "@/lib/letters";
+import { getAllLetters } from "@/lib/letters";
 
 const BASE = "https://www.onnx.click";
 
 /* 站点地图：八页纸 + 信列表 + 每一封，lastModified 跟信的落款日期 */
 export default function sitemap(): MetadataRoute.Sitemap {
-  const letters = getAllLettersWithContent();
+  const letters = getAllLetters();
   return [
     {
       url: BASE,

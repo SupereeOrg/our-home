@@ -22,7 +22,11 @@ export function generateStaticParams() {
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params;
   const letter = getLetter(slug);
-  return { title: letter ? `${letter.title} — 我们的信` : "我们的信" };
+  if (!letter) return { title: "我们的信" };
+  return {
+    title: `${letter.title} — 我们的信`,
+    description: letter.excerpt || undefined,
+  };
 }
 
 export default async function LetterPage({ params }: { params: Promise<{ slug: string }> }) {

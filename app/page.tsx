@@ -8,6 +8,7 @@ import { Link } from "next-view-transitions";
 import { AnimatePresence, motion } from "framer-motion";
 import { ArrowRight, Heart, MapPin } from "lucide-react";
 import { PLAYLIST } from "./components/playlist-data";
+import { STATS } from "@/lib/stats";
 import TopBar from "./components/TopBar";
 import LetterRow from "./components/LetterRow";
 import type { LetterMeta } from "@/lib/letters";
@@ -20,11 +21,14 @@ const LOCK_MS = 1100;
 const WHEEL_TH = 24;
 const TOUCH_TH = 48;
 
+/* 彩蛋序列：上上下下左右左右ba，和翻页共用一只 onKey，输码途中不翻页 */
+const KONAMI = ["ArrowUp", "ArrowUp", "ArrowDown", "ArrowDown", "ArrowLeft", "ArrowRight", "ArrowLeft", "ArrowRight", "b", "a"];
+
 const NUMBERS = [
-  { n: 2295, u: "km", label: "广州 ↔ 拉萨", soft: undefined },
-  { n: 33126, u: "条", label: "聊过的消息", soft: "bg-green-soft" },
-  { n: 85, u: "次", label: "互道的晚安", soft: "bg-pink-soft" },
-  { n: 168809, u: "字", label: "写下的字", soft: undefined, dark: true },
+  { n: STATS.distanceKm, u: "km", label: "广州 ↔ 拉萨", soft: undefined },
+  { n: STATS.messages, u: "条", label: "聊过的消息", soft: "bg-green-soft" },
+  { n: STATS.goodNights, u: "次", label: "互道的晚安", soft: "bg-pink-soft" },
+  { n: STATS.words, u: "字", label: "写下的字", soft: undefined, dark: true },
 ];
 
 const STORY: { d: string; t: string; p: string; hlTitle?: boolean; hlTail?: string }[] = [
@@ -45,6 +49,24 @@ const LETTER = [
 function useWeather() {
   const [data, setData] = useState<{ gz: number; lsa: number } | null>(null);
   useEffect(() => {
+    /* 10 分钟 session 缓存：翻页/重进不再打扰 open-meteo */
+    try {
+      const raw = sessionStorage.getItem("paperee-weather");
+      if (raw) {
+        const cached = JSON.parse(raw) as { at: number; data: { gz: number; lsa: number } };
+        if (
+          typeof cached?.at === "number" &&
+          typeof cached?.data?.gz === "number" &&
+          typeof cached?.data?.lsa === "number" &&
+          Date.now() - cached.at < 10 * 60 * 1000
+        ) {
+          setData(cached.data);
+          return;
+        }
+      }
+    } catch {
+      /* 无痕模式等直接走网络 */
+    }
     const ac = new AbortController();
     fetch(
       "https://api.open-meteo.com/v1/forecast?latitude=23.13,29.65&longitude=113.26,91.14&current=temperature_2m",
@@ -53,10 +75,16 @@ function useWeather() {
       .then((r) => r.json())
       .then((j) => {
         const arr = Array.isArray(j) ? j : [j];
-        setData({
+        const next = {
           gz: Math.round(arr[0]?.current?.temperature_2m ?? 27),
           lsa: Math.round(arr[1]?.current?.temperature_2m ?? arr[0]?.current?.temperature_2m ?? 12),
-        });
+        };
+        setData(next);
+        try {
+          sessionStorage.setItem("paperee-weather", JSON.stringify({ at: Date.now(), data: next }));
+        } catch {
+          /* 存不下就算了 */
+        }
       })
       .catch(() => {
         if (!ac.signal.aborted) setData({ gz: 27, lsa: 12 });
@@ -274,7 +302,9 @@ export default function Home() {
   const [dir, setDir] = useState(1);
   const [secret, setSecret] = useState(false);
   const [track, setTrack] = useState<number | null>(null);
+  const [audioFail, setAudioFail] = useState(false);
   const lock = useRef(false);
+  const konami = useRef(0);
   const touchY = useRef<number | null>(null);
   const touchScroller = useRef<HTMLElement | null>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
@@ -342,12 +372,12 @@ export default function Home() {
     return () => document.body.classList.remove("allow-scroll");
   }, [reduced]);
 
-  /* 桌面滚轮 / 键盘 / 触摸翻页 */
+  /* 桌面滚轮 / 键盘 / 触摸翻页（Konami 并入同一只 onKey：序列进行中吞掉翻页，输完开信；
+     原先两只监听各干各的，输码时页面跟着乱翻） */
   useEffect(() => {
-    if (reduced) return;
     const fine = matchMedia("(hover: hover) and (pointer: fine)").matches;
     const onWheel = (e: WheelEvent) => {
-      if (!fine || secret) return;
+      if (reduced || !fine || secret) return;
       /* 落在内部滚动盒里且还能滚：把滚轮让给盒子 */
       const scroller = (e.target as HTMLElement | null)?.closest?.("[data-scroll]") as HTMLElement | null;
       if (scroller) {
@@ -365,6 +395,19 @@ export default function Home() {
         if (e.key === "Escape") setSecret(false);
         return;
       }
+      const k = e.key.length === 1 ? e.key.toLowerCase() : e.key;
+      if (k === KONAMI[konami.current]) {
+        konami.current++;
+        if (konami.current === KONAMI.length) {
+          konami.current = 0;
+          setSecret(true);
+        } else if (k.startsWith("Arrow")) {
+          e.preventDefault();
+        }
+        return;
+      }
+      konami.current = k === KONAMI[0] ? 1 : 0;
+      if (reduced) return;
       if (["ArrowDown", "PageDown", " "].includes(e.key)) {
         e.preventDefault();
         step(1);
@@ -375,11 +418,12 @@ export default function Home() {
       else if (e.key === "End") go(TOTAL - 1);
     };
     const onTouchStart = (e: TouchEvent) => {
+      if (reduced) return;
       touchY.current = e.touches[0].clientY;
       touchScroller.current = (e.target as HTMLElement | null)?.closest?.("[data-scroll]") as HTMLElement | null;
     };
     const onTouchEnd = (e: TouchEvent) => {
-      if (touchY.current === null || secret) return;
+      if (reduced || touchY.current === null || secret) return;
       const dy = touchY.current - e.changedTouches[0].clientY;
       const sc = touchScroller.current;
       touchScroller.current = null;
@@ -405,25 +449,8 @@ export default function Home() {
     };
   }, [step, go, secret, reduced]);
 
-  /* 彩蛋：Konami */
-  useEffect(() => {
-    const seq = ["ArrowUp", "ArrowUp", "ArrowDown", "ArrowDown", "ArrowLeft", "ArrowRight", "ArrowLeft", "ArrowRight", "b", "a"];
-    let pos = 0;
-    const onKey = (e: KeyboardEvent) => {
-      const k = e.key.length === 1 ? e.key.toLowerCase() : e.key;
-      if (k === seq[pos]) {
-        pos++;
-        if (pos === seq.length) {
-          setSecret(true);
-          pos = 0;
-        }
-      } else pos = k === seq[0] ? 1 : 0;
-    };
-    window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
-  }, []);
-
   const toggleTrack = (i: number) => {
+    setAudioFail(false);
     if (track === i) {
       audioRef.current?.pause();
       audioRef.current = null;
@@ -435,7 +462,11 @@ export default function Home() {
     audioRef.current = a;
     a.play()
       .then(() => setTrack(i))
-      .catch(() => setTrack(null));
+      /* iTunes token 过期/断网：静默失败改明示，去 App 里听 */
+      .catch(() => {
+        setTrack(null);
+        setAudioFail(true);
+      });
   };
   useEffect(() => () => audioRef.current?.pause(), []);
 
@@ -447,7 +478,7 @@ export default function Home() {
           <p className="p-4 border border-ink text-[13px] leading-7 opacity-70">已为你关闭翻页动效，以下是八页的平铺阅读版。</p>
 
           <section className="mt-12">
-            <p className="kicker opacity-60">封面 · 广州 ↔ 拉萨 · 2,295 km</p>
+            <p className="kicker opacity-60">封面 · 广州 ↔ 拉萨 · {STATS.distanceKm.toLocaleString("en-US")} km</p>
             <h1 className="font-black mt-4" style={{ fontSize: "clamp(44px,8vw,88px)" }}>纸片君<br />与苏淋</h1>
             <p className="kicker mt-4 opacity-60">PAPEREE × SULIN — 八页纸</p>
             <p className="mt-4 text-[15px] leading-8 opacity-80">一个在海边，一个在高原。往下翻就是了。</p>
@@ -512,7 +543,7 @@ export default function Home() {
           <section className="mt-12 border-t rule pt-8">
             <p className="kicker opacity-60">其终 · 日常 FINALE</p>
             <h2 className="font-black mt-3" style={{ fontSize: "clamp(28px,5vw,44px)" }}>“汽水分你一半。”</h2>
-            <p className="mt-3 text-[14px] leading-8 opacity-80">Superee = su per ee —— su 有一个 ee，全世界独一个。33,126 条消息，6,124 个表情，广州 · 唐山 · 拉萨，都在这一页。</p>
+            <p className="mt-3 text-[14px] leading-8 opacity-80">Superee = su per ee —— su 有一个 ee，全世界独一个。{STATS.messages.toLocaleString("en-US")} 条消息，{STATS.stickers.toLocaleString("en-US")} 个表情，广州 · 唐山 · 拉萨，都在这一页。</p>
             <p className="mt-6 text-[12px] opacity-50">© 2026 八页纸 · 广州 ↔ 拉萨</p>
           </section>
         </article>
@@ -586,7 +617,7 @@ export default function Home() {
             onClick={() => go(i)}
             aria-label={`${String(i + 1).padStart(2, "0")} · ${t}`}
             aria-current={i === page ? "page" : undefined}
-            className="flex-1 py-2 -my-2 touch-manipulation"
+            className="flex-1 py-3 -my-3 touch-manipulation"
           >
             <span className="relative block h-[3px] bg-ink/10 overflow-hidden" aria-hidden>
               <motion.span
@@ -640,7 +671,7 @@ export default function Home() {
                     </span>
                   </div>
 
-                  <motion.p variants={rise} className="kicker flex items-center gap-2"><MapPin size={13} aria-hidden /> 广州 ↔ 拉萨 · 2,295 km</motion.p>
+                  <motion.p variants={rise} className="kicker flex items-center gap-2"><MapPin size={13} aria-hidden /> 广州 ↔ 拉萨 · {STATS.distanceKm.toLocaleString("en-US")} km</motion.p>
 
                   <motion.h1
                     variants={heroWord}
@@ -712,7 +743,7 @@ export default function Home() {
               <PageShell>
                 <motion.p variants={rise} className="kicker opacity-60">其三 · 数字 NUMBERS</motion.p>
                 <PageH2>都数过了。</PageH2>
-                <motion.p variants={rise} className="mt-2 text-[13px] opacity-60">从 33,126 条消息里，一个个数出来的。</motion.p>
+                <motion.p variants={rise} className="mt-2 text-[13px] opacity-60">从 {STATS.messages.toLocaleString("en-US")} 条消息里，一个个数出来的。</motion.p>
                 <div className="grid grid-cols-2 border border-ink mt-6">
                   {NUMBERS.map((s, i) => (
                     <div
@@ -797,6 +828,11 @@ export default function Home() {
                       ))}
                     </div>
                     <p className="px-4 py-2 text-[11px] opacity-55 border-t rule">14 首 · iTunes 30 秒试听 · 盒内可滚</p>
+                    {audioFail && (
+                      <p role="alert" className="px-4 py-2 text-[11px] font-bold border-t rule">
+                        这首试听开不开了，去音乐 App 里搜歌名听吧。
+                      </p>
+                    )}
                   </motion.div>
                   <motion.div variants={rise} className="flex flex-col gap-3">
                     {[
@@ -843,11 +879,11 @@ export default function Home() {
                 <PageH2 small>“汽水分你<span className="hl hl-yellow">一半</span>。”</PageH2>
                 <motion.div variants={rise} className="grid grid-cols-2 border border-ink mt-5 max-w-[520px]">
                   <div className="p-4 border-r rule">
-                    <p className="font-black tabular-nums" style={{ fontSize: "clamp(22px,3vw,32px)" }} aria-label="22820 条文字"><span aria-hidden><CountUp value={22820} /></span></p>
+                    <p className="font-black tabular-nums" style={{ fontSize: "clamp(22px,3vw,32px)" }} aria-label={`${STATS.textMessages} 条文字`}><span aria-hidden><CountUp value={STATS.textMessages} /></span></p>
                     <p className="text-[12px] mt-1 opacity-65 font-bold">条文字</p>
                   </div>
                   <div className="p-4">
-                    <p className="font-black tabular-nums" style={{ fontSize: "clamp(22px,3vw,32px)" }} aria-label="6124 个表情"><span aria-hidden><CountUp value={6124} /></span></p>
+                    <p className="font-black tabular-nums" style={{ fontSize: "clamp(22px,3vw,32px)" }} aria-label={`${STATS.stickers} 个表情`}><span aria-hidden><CountUp value={STATS.stickers} /></span></p>
                     <p className="text-[12px] mt-1 opacity-65 font-bold">个表情</p>
                   </div>
                 </motion.div>

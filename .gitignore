@@ -16,3 +16,6 @@ Thumbs.db
 *.log
 .opencode/
 tsconfig.tsbuildinfo
+
+# local originals (5MB+ jpg 备份，不进仓库)
+assets-originals/

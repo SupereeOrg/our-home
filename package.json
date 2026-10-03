@@ -5,7 +5,8 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "start": "next start"
+    "start": "next start",
+    "check": "tsc --noEmit"
   },
   "dependencies": {
     "@fontsource/noto-serif-sc": "^5.3.0",

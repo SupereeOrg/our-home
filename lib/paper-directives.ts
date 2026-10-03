@@ -17,6 +17,11 @@ export default function paperDirectives() {
   return (tree: Root, file: any) => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     visit(tree, (node: any, index: number | undefined, parent: any) => {
+      /* 信正文 h1 降 h2：页面的题面已经是 h1，md 里再写 # 会一页双 h1 */
+      if (node.type === "heading" && node.depth === 1) {
+        node.depth = 2;
+        return;
+      }
       if (
         node.type !== "containerDirective" &&
         node.type !== "leafDirective" &&
