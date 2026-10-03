@@ -1,0 +1,37 @@
+{
+  "name": "superee-v2",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start"
+  },
+  "dependencies": {
+    "@fontsource/noto-serif-sc": "^5.3.0",
+    "@fontsource/space-grotesk": "^5.3.0",
+    "framer-motion": "^12.23.24",
+    "gray-matter": "^4.0.3",
+    "katex": "^0.19.0",
+    "lucide-react": "^0.545.0",
+    "next": "^16.3.5",
+    "next-view-transitions": "^0.3.5",
+    "react": "^19.3.0",
+    "react-dom": "^19.3.0",
+    "react-markdown": "^10.1.0",
+    "rehype-katex": "^7.0.1",
+    "remark-directive": "^4.0.0",
+    "remark-gfm": "^4.0.1",
+    "remark-math": "^6.0.0",
+    "unist-util-visit": "^5.1.0"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "^4.3.3",
+    "@types/node": "^22.10.2",
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "postcss": "^8.5.28",
+    "tailwindcss": "^4.3.3",
+    "typescript": "^5.7.2"
+  }
+}

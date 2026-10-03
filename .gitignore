@@ -1,0 +1,18 @@
+# dependencies
+node_modules/
+
+# next
+.next/
+out/
+dist/
+
+# env
+.env
+.env*.local
+
+# misc
+.DS_Store
+Thumbs.db
+*.log
+.opencode/
+tsconfig.tsbuildinfo

@@ -1,0 +1,360 @@
+@import "tailwindcss";
+
+@theme {
+  --color-paper: #f7f3ec;
+  --color-ink: #23201c;
+  --color-pink: #d8a7a0;
+  --color-pink-soft: #f1ddd8;
+  --color-green: #9aa48a;
+  --color-green-soft: #dee4d5;
+  --color-line: rgba(35, 32, 28, 0.16);
+}
+
+html,
+body {
+  height: 100%;
+}
+
+body {
+  background: var(--color-paper);
+  color: var(--color-ink);
+  font-family: "Noto Serif SC", "Songti SC", "SimSun", serif;
+  -webkit-font-smoothing: antialiased;
+  overflow: hidden; /* 分页式：只有一页，滚动由 pager 接管；减弱动效时由组件切回自然流 */
+}
+
+body.allow-scroll {
+  overflow-y: scroll;
+}
+/* 信页无感滚动：原生条全藏（歌单同款），位置感由顶端进度线接管 */
+html.allow-scroll {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+html.allow-scroll::-webkit-scrollbar,
+body.allow-scroll::-webkit-scrollbar {
+  display: none;
+  width: 0;
+}
+@media (forced-colors: active) {
+  html.allow-scroll {
+    scrollbar-width: auto;
+  }
+  html.allow-scroll::-webkit-scrollbar,
+  body.allow-scroll::-webkit-scrollbar {
+    display: initial;
+  }
+}
+
+::selection {
+  background: var(--color-pink);
+  color: var(--color-ink);
+}
+
+/* 黑描边只给 文字以外的可交互元素：Tailwind v4 工具类活在 @layer 里，
+   无层的 :focus-visible 全局选择器永远赢它，所以输入框必须在这里就被排除 */
+a:focus-visible,
+button:focus-visible,
+[tabindex]:focus-visible {
+  outline: 2px solid var(--color-ink);
+  outline-offset: 3px;
+}
+
+.kicker {
+  font-family: "Space Grotesk", "Noto Serif SC", sans-serif;
+  letter-spacing: 0.28em;
+  font-size: 11px;
+  font-weight: 500;
+}
+@media (max-width: 640px) {
+  .kicker {
+    letter-spacing: 0.18em;
+  }
+}
+
+.rule {
+  border-color: var(--color-line);
+}
+
+.no-round,
+.no-round * {
+  border-radius: 0 !important;
+}
+
+/* 拆信 skeleton：墨色扫过纸面 */
+.skeleton-bar {
+  height: 12px;
+  background: linear-gradient(
+    100deg,
+    rgba(35, 32, 28, 0.06) 30%,
+    rgba(35, 32, 28, 0.15) 50%,
+    rgba(35, 32, 28, 0.06) 70%
+  );
+  background-size: 200% 100%;
+  animation: skeleton-sweep 1.4s linear infinite;
+}
+@keyframes skeleton-sweep {
+  to {
+    background-position: -200% 0;
+  }
+}
+
+/* 信正文 Markdown：纸面排印（散文 + 题面混排都成立，不用首字下沉） */
+.letter-body {
+  font-size: 15.5px;
+  line-height: 2;
+}
+.letter-body > * + * {
+  margin-top: 1.1em;
+}
+.letter-body h1 {
+  font-weight: 900;
+  font-size: 1.6em;
+  margin-top: 0;
+  text-wrap: balance;
+}
+.letter-body h2 {
+  font-weight: 900;
+  font-size: 1.35em;
+  margin-top: 1.6em;
+  text-wrap: balance;
+}
+.letter-body blockquote {
+  border-left: 2px solid var(--color-ink);
+  padding-left: 1em;
+  opacity: 0.8;
+  font-style: italic;
+}
+.letter-body ul {
+  list-style: disc;
+  padding-left: 1.4em;
+}
+.letter-body ol {
+  list-style: decimal;
+  padding-left: 1.4em;
+}
+.letter-body li + li {
+  margin-top: 0.4em;
+}
+.letter-body a {
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+.letter-body code {
+  font-size: 0.85em;
+  background: rgba(0, 0, 0, 0.05);
+  padding: 0.1em 0.35em;
+}
+/* 代码块：纸卡语言，不套深色主题；等宽字，中文信里也不串味 */
+.letter-body pre {
+  border: 1px solid var(--color-ink);
+  padding: 1em 1.2em;
+  overflow-x: auto;
+  margin-top: 1.4em;
+  font-size: 0.85em;
+  line-height: 1.9;
+  font-family: ui-monospace, "SF Mono", Menlo, Consolas, "Noto Sans SC", monospace;
+}
+.letter-body pre code {
+  background: none;
+  padding: 0;
+}
+/* 表格：细线网格，GFM 来的表直接能看 */
+.letter-body table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 1.4em;
+  font-size: 0.9em;
+}
+.letter-body th,
+.letter-body td {
+  border-bottom: 1px solid var(--color-line);
+  padding: 0.6em 0.8em;
+  text-align: left;
+}
+.letter-body th {
+  font-weight: 900;
+  border-bottom: 1px solid var(--color-ink);
+}
+.letter-body hr {
+  border: none;
+  border-top: 1px solid var(--color-line);
+  margin: 2em 0;
+}
+.letter-body img {
+  max-width: 100%;
+  border: 1px solid var(--color-ink);
+}
+/* 纸指令：居中 / 右对齐 / 小字跋（md 里 :::center :::right :::small，以 ::: 收尾） */
+.letter-body .paper-center {
+  text-align: center;
+}
+.letter-body .paper-right {
+  text-align: right;
+}
+.letter-body .paper-small {
+  font-size: 0.85em;
+  opacity: 0.65;
+}
+/* 公式随纸走墨，不用 KaTeX 默认纯黑 */
+.letter-body .katex {
+  color: var(--color-ink);
+}
+
+/* 路由转场：旧页上浮虚化，新页下浮显影，和站内同一种 EASE */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation-duration: 0.6s;
+  animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+}
+::view-transition-old(root) {
+  animation-name: vt-out;
+}
+::view-transition-new(root) {
+  animation-name: vt-in;
+}
+@keyframes vt-out {
+  to {
+    opacity: 0;
+    transform: translateY(-26px);
+    filter: blur(8px);
+  }
+}
+@keyframes vt-in {
+  from {
+    opacity: 0;
+    transform: translateY(26px);
+    filter: blur(8px);
+  }
+}
+
+/* 右侧章节导航 */
+.chapter-nav {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 2px 0;
+}
+.chapter-nav .kicker {
+  letter-spacing: 0.22em;
+}
+
+/* 导航荧光笔横扫：悬浮/当前页，0.5em 墨带从左铺满 */
+.navlink {
+  opacity: 0.45;
+  padding: 0 0.15em;
+  background-image: linear-gradient(rgba(35, 32, 28, 0.14), rgba(35, 32, 28, 0.14));
+  background-size: 0% 0.5em;
+  background-position: 0 50%;
+  background-repeat: no-repeat;
+  transition: background-size 0.45s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.3s;
+}
+a.navlink:not([aria-current]):hover {
+  opacity: 0.9;
+  background-size: 100% 0.5em;
+}
+.navlink[aria-current="page"] {
+  opacity: 0.9;
+  background-size: 100% 0.5em;
+}
+
+/* 行遮罩：标题逐行升起的核心 */
+.mask {
+  display: block;
+  overflow: hidden;
+}
+.mask-inner {
+  display: block;
+  will-change: transform;
+}
+
+h1, h2 {
+  text-wrap: balance;
+}
+
+/* 荧光笔系统（全站唯一规格）
+   带高 0.5em，垂直居中糊在字身上
+   行内版(.hl)背景直铺可换行；展示版(.hl-display)走 ::before，字母升起时漆不动 */
+.hl-green {
+  --hlc: #dee4d5;
+}
+.hl-pink {
+  --hlc: #f1ddd8;
+}
+.hl-yellow {
+  --hlc: #ffdd33;
+}
+.hl {
+  margin: 0;
+  padding: 0;
+  background-image: linear-gradient(var(--hlc), var(--hlc));
+  background-size: 100% 0.5em;
+  background-repeat: no-repeat;
+  background-position: 0 50%;
+  border-radius: 1px;
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
+}
+.hl-display {
+  position: relative;
+  isolation: isolate;
+  margin: 0;
+  padding: 0;
+}
+.hl-display::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 50%;
+  height: 0.5em;
+  transform: translateY(-50%);
+  z-index: -1;
+  background: var(--hlc);
+  border-radius: 1px;
+}
+.text-stroke {
+  -webkit-text-stroke: 1.5px var(--color-ink);
+  color: transparent;
+}
+@media (max-width: 640px) {
+  .text-stroke {
+    -webkit-text-stroke-width: 1px;
+  }
+}
+
+/* 歌单盒内滚动：藏干净，底注文字即提示 */
+.playlist-scroll {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.playlist-scroll::-webkit-scrollbar {
+  display: none;
+}
+
+/* 纸纹颗粒 + 暗角：氛围层，不拦截点击 */
+.grain {
+  position: absolute;
+  inset: 0;
+  z-index: 20;
+  pointer-events: none;
+  opacity: 0.55;
+  mix-blend-mode: multiply;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.10'/%3E%3C/svg%3E");
+}
+.vignette {
+  position: absolute;
+  inset: 0;
+  z-index: 20;
+  pointer-events: none;
+  background: radial-gradient(120% 90% at 50% 40%, transparent 60%, rgba(35, 32, 28, 0.10) 100%);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  ::view-transition-old(root),
+  ::view-transition-new(root) {
+    animation: none !important;
+    transition: none !important;
+  }
+}
