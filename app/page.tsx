@@ -309,6 +309,9 @@ export default function Home() {
   const touchScroller = useRef<HTMLElement | null>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const [reduced, setReduced] = useState(false);
+  /* 动效总开关：auto 跟随系统，full/flat 是用户手选（localStorage 持久）。
+     对方手机若开了“减弱动态效果”，进站即平铺版，但点一下就能翻页。 */
+  const [motionOverride, setMotionOverride] = useState<"auto" | "full" | "flat">("auto");
   const weather = useWeather();
   const router = useRouter();
   /* 路由 + 图片双预热：顶栏移动端链接不在视口不触发自动 prefetch，这里手动暖一次；
@@ -335,8 +338,28 @@ export default function Home() {
   }, []);
 
   useEffect(() => {
-    setReduced(matchMedia("(prefers-reduced-motion: reduce)").matches);
+    try {
+      const v = localStorage.getItem("paperee-motion");
+      if (v === "full" || v === "flat") setMotionOverride(v);
+    } catch {
+      /* 无痕模式：跟随系统 */
+    }
+    const mq = matchMedia("(prefers-reduced-motion: reduce)");
+    setReduced(mq.matches);
+    const onChange = (e: MediaQueryListEvent) => setReduced(e.matches);
+    mq.addEventListener("change", onChange);
+    return () => mq.removeEventListener("change", onChange);
   }, []);
+
+  const calm = motionOverride === "flat" ? true : motionOverride === "full" ? false : reduced;
+  const setMotion = (m: "full" | "flat") => {
+    setMotionOverride(m);
+    try {
+      localStorage.setItem("paperee-motion", m);
+    } catch {
+      /* 存不下就算了，本次生效 */
+    }
+  };
 
   const go = useCallback(
     (next: number) => {
@@ -351,12 +374,12 @@ export default function Home() {
 
   const step = useCallback(
     (d: number) => {
-      if (lock.current || secret || reduced) return;
+      if (lock.current || secret || calm) return;
       lock.current = true;
       go(page + d);
       setTimeout(() => (lock.current = false), LOCK_MS);
     },
-    [go, page, secret, reduced]
+    [go, page, secret, calm]
   );
 
   /* 初载 hash + 减弱动效时恢复自然滚动 */
@@ -368,16 +391,16 @@ export default function Home() {
         setPage(n);
       }
     }
-    if (reduced) document.body.classList.add("allow-scroll");
+    if (calm) document.body.classList.add("allow-scroll");
     return () => document.body.classList.remove("allow-scroll");
-  }, [reduced]);
+  }, [calm]);
 
   /* 桌面滚轮 / 键盘 / 触摸翻页（Konami 并入同一只 onKey：序列进行中吞掉翻页，输完开信；
      原先两只监听各干各的，输码时页面跟着乱翻） */
   useEffect(() => {
     const fine = matchMedia("(hover: hover) and (pointer: fine)").matches;
     const onWheel = (e: WheelEvent) => {
-      if (reduced || !fine || secret) return;
+      if (calm || !fine || secret) return;
       /* 落在内部滚动盒里且还能滚：把滚轮让给盒子 */
       const scroller = (e.target as HTMLElement | null)?.closest?.("[data-scroll]") as HTMLElement | null;
       if (scroller) {
@@ -407,7 +430,7 @@ export default function Home() {
         return;
       }
       konami.current = k === KONAMI[0] ? 1 : 0;
-      if (reduced) return;
+      if (calm) return;
       if (["ArrowDown", "PageDown", " "].includes(e.key)) {
         e.preventDefault();
         step(1);
@@ -418,12 +441,12 @@ export default function Home() {
       else if (e.key === "End") go(TOTAL - 1);
     };
     const onTouchStart = (e: TouchEvent) => {
-      if (reduced) return;
+      if (calm) return;
       touchY.current = e.touches[0].clientY;
       touchScroller.current = (e.target as HTMLElement | null)?.closest?.("[data-scroll]") as HTMLElement | null;
     };
     const onTouchEnd = (e: TouchEvent) => {
-      if (reduced || touchY.current === null || secret) return;
+      if (calm || touchY.current === null || secret) return;
       const dy = touchY.current - e.changedTouches[0].clientY;
       const sc = touchScroller.current;
       touchScroller.current = null;
@@ -447,7 +470,7 @@ export default function Home() {
       window.removeEventListener("touchstart", onTouchStart);
       window.removeEventListener("touchend", onTouchEnd);
     };
-  }, [step, go, secret, reduced]);
+  }, [step, go, secret, calm]);
 
   const toggleTrack = (i: number) => {
     setAudioFail(false);
@@ -470,12 +493,21 @@ export default function Home() {
   };
   useEffect(() => () => audioRef.current?.pause(), []);
 
-  if (reduced) {
+  if (calm) {
     return (
       <main className="no-round">
         <TopBar />
         <article className="max-w-2xl mx-auto px-6 pt-24 pb-20">
-          <p className="p-4 border border-ink text-[13px] leading-7 opacity-70">已为你关闭翻页动效，以下是八页的平铺阅读版。</p>
+          <p className="p-4 border border-ink text-[13px] leading-7 opacity-70">
+            已为你关闭翻页动效，以下是八页的平铺阅读版。
+            <button
+              type="button"
+              onClick={() => setMotion("full")}
+              className="ml-2 font-bold underline underline-offset-4 hover:opacity-70 transition-opacity"
+            >
+              还是想翻页 →
+            </button>
+          </p>
 
           <section className="mt-12">
             <p className="kicker opacity-60">封面 · 广州 ↔ 拉萨 · {STATS.distanceKm.toLocaleString("en-US")} km</p>
@@ -894,7 +926,7 @@ export default function Home() {
                   </motion.button>
                   <a href="mailto:hello@onnx.click" className="px-4 py-3.5 text-[13px] underline underline-offset-4 opacity-80 hover:opacity-100">写信给我们</a>
                 </motion.div>
-                <motion.p variants={rise} className="mt-6 text-[11px] opacity-45 tracking-widest">© 2026 八页纸 · 广州 ↔ 拉萨<span className="hidden [@media(hover:hover)_and_(pointer:fine)]:inline"> · KONAMI 键亦可开信</span></motion.p>
+                <motion.p variants={rise} className="mt-6 text-[11px] opacity-45 tracking-widest">© 2026 八页纸 · 广州 ↔ 拉萨<span className="hidden [@media(hover:hover)_and_(pointer:fine)]:inline"> · KONAMI 键亦可开信</span>{" · "}<button type="button" onClick={() => setMotion("flat")} className="underline underline-offset-4 hover:opacity-70 transition-opacity">读着晕？切平铺版</button></motion.p>
               </PageShell>
             )}
 
